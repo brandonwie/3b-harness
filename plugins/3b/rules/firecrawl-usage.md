@@ -123,7 +123,7 @@ concrete starting point:
 - `/research-paper` — `firecrawl-scrape` for arXiv abstract pages when PDF
   extraction is brittle (especially paywalled or JS-heavy preprint servers)
 - `/blog-publish` — `firecrawl-scrape` for a post-sync sanity check that
-  brandonwie.dev rendered the post correctly
+  the maintainer's blog ({blog_domain}) rendered the post correctly
 - `/investigate` — `firecrawl-search` for external reference lookups during
   root-cause analysis when built-in `WebSearch` returns thin results
 
@@ -166,10 +166,10 @@ a single command or trivial edit — full removal takes under a minute.
 rm -rf ~/.agents/skills/firecrawl*
 
 # 2. Dangling symlinks in 3B
-rm /Users/brandonwie/dev/personal/3b/.claude/skills/firecrawl*
+rm ~/dev/personal/3b/.claude/skills/firecrawl*
 
 # 3. This rule file
-rm /Users/brandonwie/dev/personal/3b/.claude/rules/firecrawl-usage.md
+rm ~/dev/personal/3b/.claude/rules/firecrawl-usage.md
 
 # 4. Pointer line in 3B CLAUDE.md — edit 3b/CLAUDE.md and remove the two-line
 #    pointer that references firecrawl-usage.md (under "## Skill Routing")
@@ -184,8 +184,10 @@ rm /Users/brandonwie/dev/personal/3b/.claude/rules/firecrawl-usage.md
 # 5. Gitignore — edit 3b/.gitignore and remove the `.firecrawl/` line and
 #    the two `.claude/skills/firecrawl*` lines
 
-# 6. Auto-memory files
-rm /Users/brandonwie/.claude/projects/-Users-brandonwie-dev-personal-3b/memory/project_firecrawl.md
+# 6. Auto-memory files — Claude Code encodes the project's absolute path
+#    into its per-project memory dir (e.g. an absolute path `/Users/me/dev/foo`
+#    becomes `-Users-me-dev-foo`). Adjust the slug for your home:
+rm ~/.claude/projects/{project-slug}/memory/project_firecrawl.md
 # Edit MEMORY.md and remove the firecrawl index line
 
 # 7. Uninstall the CLI binary

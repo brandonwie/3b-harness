@@ -29,7 +29,7 @@ Streamline PR creation with:
 - Branch confirmation before proceeding
 - Commit analysis for concise PR description
 - **Bilingual PR notes** (English + Korean 요약)
-- Auto-assignment to `@brandonwie`
+- Auto-assignment to `@{github_user}` (configured per project)
 - Smart label selection based on domain + priority
 - Project selection with automatic "In Review" status
 - Automated code review trigger via `@claude review` comment
@@ -266,7 +266,7 @@ gh pr create \
 {generated body with Korean section}
 EOF
 )" \
-  --assignee brandonwie \
+  --assignee "{github_user}" \
   --label "{labels}"
 ```
 
@@ -331,7 +331,7 @@ STATUS:   Set to "In Review" when adding to project
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ALWAYS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ASSIGNEE: @brandonwie
+ASSIGNEE: @{github_user}
 ISSUE:    Feature/Fix PR: "Closes #xxx"
           Release PR: "Related Issues: #x, #y, ..."
 

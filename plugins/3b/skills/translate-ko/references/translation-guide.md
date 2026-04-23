@@ -1,8 +1,8 @@
 # Korean Translation Guide — Toss.tech Style
 
-Comprehensive spec for translating English blog posts to Korean on
-brandonwie.dev. Adapted from Toss.tech writing principles with authoritative
-references from technical writing guides.
+Comprehensive spec for translating English blog posts to Korean for the
+maintainer's blog ({blog_domain}). Adapted from Toss.tech writing principles
+with authoritative references from technical writing guides.
 
 ## Goal
 
@@ -17,7 +17,7 @@ by a Korean developer for Korean developers.
 | **해요체 (default)** | Blog posts, tutorials, team culture | …해요, …했어요, …있어요 |
 | **하십시오체**       | Policies, manuals, formal docs      | …합니다, …하십시오      |
 
-**Default for brandonwie.dev: 해요체.** All blog translations use this register
+**Default for {blog_domain}: 해요체.** All blog translations use this register
 unless explicitly overridden.
 
 ### Ending Patterns

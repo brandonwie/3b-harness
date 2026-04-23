@@ -20,7 +20,8 @@ Standardize GitHub issue creation with:
 - **Bilingual issue body** (English + Korean 요약)
 - GitHub Issue Type (Bug/Feature/Task)
 - Automatic label selection based on domain + priority
-- Auto-assignment to `@brandonwie`
+- Auto-assignment to `@{github_user}` (configured per project; see the skill's
+  Reference Files section for how to set this)
 - Project selection prompt before creation
 
 ## Reference Files
@@ -161,7 +162,7 @@ gh issue create \
 {Context를 합니다체로 번역}
 EOF
 )" \
-  --assignee brandonwie \
+  --assignee "{github_user}" \
   --label "domain-label,priority:level"
 ```
 
@@ -184,7 +185,7 @@ URL: {issue_url}
 Title: {title}
 Type: {Bug|Feature|Task}
 Labels: {labels}
-Assignee: @brandonwie
+Assignee: @{github_user}
 Project: {project_name or "None"}
 ```
 
@@ -195,6 +196,6 @@ TITLE:    type(scope): description
 KOREAN:   요약 section with 합니다체 endings (MANDATORY)
 TYPE:     Bug | Feature | Task (GitHub Issue Type, NOT a label)
 LABELS:   [domain-label] + [priority:level]
-ASSIGNEE: Always @brandonwie
+ASSIGNEE: Always @{github_user}
 PROJECT:  Always ask user
 ```

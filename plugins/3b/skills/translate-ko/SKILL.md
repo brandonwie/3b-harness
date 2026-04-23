@@ -33,7 +33,7 @@ Ask the user (or infer from the file) what context this translation is for:
 
 | Context | Register         | Typical Output                       |
 | ------- | ---------------- | ------------------------------------ |
-| blog    | 해요체 (default) | Blog post for brandonwie.dev         |
+| blog    | 해요체 (default) | Blog post for the maintainer's blog ({blog_domain}) |
 | docs    | 하십시오체       | README, documentation, formal guides |
 | pr      | 한다체           | PR description, commit message       |
 | general | 해요체           | Any other content                    |

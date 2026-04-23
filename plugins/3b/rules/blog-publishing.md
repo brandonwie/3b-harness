@@ -6,8 +6,10 @@ paths:
 
 # Blog Publishing Integration
 
-Knowledge entries can be synced to [brandonwie.dev](https://brandonwie.dev)
-blog. This section documents the workflow and decision criteria.
+Knowledge entries can be synced to a maintainer-owned blog. This section
+documents the workflow and decision criteria. Examples below use
+`{blog_domain}` as a placeholder — substitute your own blog's domain (and
+matching repo folder) when configuring the sync script.
 
 ## Three Types of Links (IMPORTANT)
 
@@ -66,12 +68,12 @@ blog:
 3. **Mark ready**: Set `blog.ready: true` when content is polished
 4. **Sync**: Run sync script to copy to blog repo
 
-**Sync Script Location:**
-`~/dev/personal/brandonwie.dev/scripts/sync-from-3b.ts`
+**Sync Script Location** (replace `{blog_domain}` with your blog's folder):
+`~/dev/personal/{blog_domain}/scripts/sync-from-3b.ts`
 
 ```bash
 # Dry run (preview what would sync)
-cd ~/dev/personal/brandonwie.dev
+cd ~/dev/personal/{blog_domain}
 deno run --allow-read --allow-write --allow-env scripts/sync-from-3b.ts --dry-run
 
 # Apply sync

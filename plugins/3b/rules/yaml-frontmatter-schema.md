@@ -30,7 +30,7 @@ when_used:
     project: project-name
     context: "What triggered this"
 
-# BLOG PUBLISHING - For knowledge entries synced to brandonwie.dev
+# BLOG PUBLISHING - For knowledge entries synced to {blog_domain}
 blog:
   publishable: true | false | "review" # Appropriate for public blog?
   ready: false # Editorial: polished and ready?
