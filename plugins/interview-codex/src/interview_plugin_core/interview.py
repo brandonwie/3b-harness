@@ -259,9 +259,13 @@ class InterviewEngine:
         Args:
             initial_context: The initial context or idea provided by the user.
             interview_id: Optional interview ID (generated if not provided).
-            cwd: Optional working directory. When provided, auto-detects
-                brownfield projects and runs codebase exploration before the
-                first question.
+            cwd: Optional working directory. When provided, the engine
+                detects whether the path is a brownfield project and
+                records it on ``state.codebase_paths`` with
+                ``role="primary"``. The engine does NOT auto-explore the
+                codebase — the calling runtime is responsible for any
+                richer inspection and for feeding facts back via the
+                ``[from-code]`` answer prefix.
 
         Returns:
             Result containing the new InterviewState or ValidationError.
