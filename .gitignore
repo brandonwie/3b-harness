@@ -85,6 +85,3 @@ installer/settings.local.work.json
 installer/settings.json.bak-*
 installer/task-tracker.json
 installer/commands/init-3b.md
-installer/hooks/profile-sync-hook.py
-installer/hooks/friction-context-hook.py
-installer/hooks/knowledge-staleness-hook.py
