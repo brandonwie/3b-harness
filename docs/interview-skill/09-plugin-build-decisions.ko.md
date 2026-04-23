@@ -22,18 +22,27 @@ related:
 >    강등 — 이 플러그인은 `interview-codex`와의 cross-analysis를 위해 보관된
 >    **not-for-use 스냅샷**이지, 배포 가능한 빌드가 아님.
 >
-> 이 문서를 읽을 때: `ask-socratic`은 `interview-claude`로, `ask-socratic-ai`
-> (Phase 2 PyPI 패키지)는 `interview-ai`로 읽으면 됨 (deprecated — 아래
-> Phase 2 노트 참조). 슬래시 커맨드는 `/3b:interview` (manifest
-> `name: 3b`; 이전에는 `/interview-claude:interview`). 레포 루트의
+> 이 문서를 읽을 때: `ask-socratic`은 통합된 `plugins/3b/` 플러그인 (manifest
+> `name: 3b`)으로, `ask-socratic-ai` (Phase 2 PyPI 패키지)는 `interview-ai`
+> (deprecated — 아래 Phase 2 노트 참조)로 읽으면 됨. 슬래시 커맨드는
+> `/3b:interview` (이전에는 `/interview-claude:interview`). 레포 루트의
 > CHANGELOG에서 전체 이름 변경 기록 참조.
 >
-> **Phase 2 / MCP 노트 (2026-04-23 업데이트):** 듀얼 패스 설계
+> **Phase 2 / MCP 노트 (2026-04-23 통합):** 듀얼 패스 설계
 > (Path A = `interview-ai` PyPI 패키지 기반 MCP, Path B = agent
-> fallback)는 철회됨. `interview-claude`는 prompt-heavy single-path로
-> 출시되고, engine-heavy 변종은 별도 `interview-codex` 플러그인임.
+> fallback)는 철회됨. 통합된 `plugins/3b/`는 두 개의 **레이어**를 가짐
+> (두 개의 플러그인이 아님):
+>
+> - 대화형 레이어 — SKILL.md + agents, prompt-heavy, zero deps.
+> - 프로그래머틱 레이어 — `plugins/3b/engine/` Python 패키지, optional,
+>   `plugins/3b/agents/`에서 프롬프트를 filesystem SSoT로 로드. 수치
+>   ambiguity scoring, file-locked state persistence, integrator용
+>   `LLMAdapter` protocol 제공.
+>
 > 아래에서 언급되는 `interview-ai` 패키지는 작성된 적이 없으며 더 이상
-> 계획에 없음.
+> 계획에 없음. 원래 짝이었던 sibling 변종 (`interview-claude`와
+> `interview-codex`)은 `archive/plugins/` 아래에 historical snapshot으로
+> 보관됨.
 
 ## 개정 — 2026-04-23
 

@@ -23,18 +23,28 @@ related:
 >    distribution-ready build.
 >
 > When reading the rest of this doc: where it says `ask-socratic` read
-> `interview-claude`; where it says `ask-socratic-ai` (Phase 2 PyPI
-> package) read `interview-ai` (deprecated — see Phase 2 note below).
-> Slash command is now `/3b:interview` (manifest `name: 3b`;
-> previously `/interview-claude:interview`). See the root CHANGELOG
-> for the full rename record.
+> the consolidated plugin at `plugins/3b/` (manifest `name: 3b`); where
+> it says `ask-socratic-ai` (Phase 2 PyPI package) read `interview-ai`
+> (deprecated — see Phase 2 note below). Slash command is
+> `/3b:interview` (previously `/interview-claude:interview`, earlier
+> still `ask-socratic` flavored names). See the root CHANGELOG for the
+> full rename record.
 >
-> **Phase 2 / MCP note (2026-04-23 update):** the dual-path design
-> (Path A = MCP via `interview-ai` PyPI package, Path B = agent
-> fallback) was collapsed. `interview-claude` now ships as prompt-heavy
-> single-path; the engine-heavy variant is the separate
-> `interview-codex` plugin. The `interview-ai` package referenced below
-> was never built and is no longer planned.
+> **Phase 2 / MCP note (2026-04-23 consolidation):** the dual-path
+> design (Path A = MCP via `interview-ai` PyPI package, Path B = agent
+> fallback) was collapsed. The consolidated `plugins/3b/` ships two
+> **layers** (not two plugins):
+>
+> - Conversational layer — SKILL.md + agents, prompt-heavy, zero deps.
+> - Programmatic layer — `plugins/3b/engine/` Python package, optional,
+>   loads prompts from the same `plugins/3b/agents/` via filesystem
+>   SSoT. Provides numeric ambiguity scoring, file-locked state
+>   persistence, and `LLMAdapter` protocol for integrators.
+>
+> The `interview-ai` package referenced below was never built and is
+> no longer planned. The originally-paired sibling variants
+> (`interview-claude` and `interview-codex`) are archived under
+> `archive/plugins/` as historical snapshots.
 
 # Plugin build decisions — cross-agent interview skill fork
 

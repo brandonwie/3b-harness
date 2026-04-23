@@ -20,56 +20,62 @@ Goal: diff the two interview plugin snapshots
 v0.1.0) side by side, decide the path forward, then unblock the
 release roadmap.
 
-### Adjudication (2026-04-23)
+### Adjudication (2026-04-23, revised same day)
 
-CA1 + CA3 resolved via self-review cross-analysis:
+CA1 + CA3 resolved via self-review cross-analysis plus a user-driven
+course correction:
 
 - [`review-from-claude.md`](./review-from-claude.md) — Claude's review of
   `interview-claude` against `interview-codex` baseline.
 - [`review-from-codex.md`](./review-from-codex.md) — Codex's review of
   `interview-codex` against `interview-claude` baseline.
 - [`consolidated-plan.md`](./consolidated-plan.md) — reconciles both
-  reviews into one executable plan.
+  reviews; see its **⚠️ REVISION** banner at top for the corrected
+  direction.
 
-**Direction chosen: CA3 option (c) — Hybrid.** Keep two specialized
-variants for different deploy targets. **Prompt-heavy vs engine-heavy
-is a deliberate design axis, not a bug** (consolidated-plan §3).
-Archiving either variant is explicitly rejected.
+**Direction chosen: CA3 option (a) — Merge best-of-both.** One plugin,
+[`plugins/3b/`](./plugins/3b/), with TWO **layers** (not two plugins):
 
-- `interview-claude` (manifest name: `3b`) = canonical for Claude Code
-  native users. Prompt-heavy, zero runtime deps, slash command
-  `/3b:interview`.
-- `interview-codex` = canonical for Python-runtime integrators. Engine-
-  heavy, pluggable `LLMAdapter`, numeric ambiguity scoring.
+- **Conversational layer** — SKILL.md playbook + 7 agent prompts.
+  Zero runtime deps. Slash command `/3b:interview`. Works on Claude
+  Code, Codex, Gemini CLI, any future AI agent that can read markdown.
+- **Programmatic layer** — [`plugins/3b/engine/`](./plugins/3b/engine/)
+  Python package (`interview_plugin_core`). Numeric ambiguity scoring,
+  file-locked state persistence, 60+ async tests. Optional — loads
+  prompts from the same `plugins/3b/agents/` as the conversational
+  layer (SSoT).
 
-CA2's `docs/interview-skill/10-variant-comparison.md` still needs to be
-written to document the design-axis thesis externally (harness-level
-deliverable D1 in `consolidated-plan.md`).
+Old snapshots moved to [`archive/plugins/`](./archive/) with
+explanatory READMEs. The first-pass adjudication (keep both as
+siblings) is recorded in consolidated-plan.md's REVISION section.
 
 - [x] **CA1 — Cross-analyze both snapshots.** Done via `review-from-claude.md`
   + `review-from-codex.md`. All 8 design axes covered. See also
   `consolidated-plan.md` §1 structural comparison matrix.
 
 - [ ] **CA2 — Write `docs/interview-skill/10-variant-comparison.md`**
-  (EN). Contents:
-  - [ ] Summary matrix (axes × variants × verdict)
-  - [ ] Per-axis verdict (who wins / what's the tradeoff)
-  - [ ] Merge recommendations (can we take best of both? specific
-        pieces?)
-  - [ ] Risks of each direction (pick / merge / keep both)
+  (EN). **Scope revised** — doc now describes the two-**layer**
+  architecture of `plugins/3b/` rather than two sibling plugins.
+  Contents:
+  - [ ] Why the plugin has a conversational layer AND a programmatic
+        layer (prompt-heavy vs engine-heavy as two surfaces of one
+        plugin, not two plugins).
+  - [ ] When to use which layer; how they share `agents/` via SSoT.
+  - [ ] Reference to the archived original variants as design-journey
+        context.
   - [ ] Mirror doc in Korean:
         `docs/interview-skill/10-variant-comparison.ko.md`
   - [ ] Update `docs/interview-skill/README.md` index to list doc 10
 
-- [x] **CA3 — Decide direction.** Chose **(c) Hybrid** — keep two
-  specialized variants. See Adjudication block above for rationale.
+- [x] **CA3 — Decide direction.** Chose **(a) Merge best-of-both**
+  into single `plugins/3b/` with archived originals under
+  `archive/plugins/`. See Adjudication block above.
   - [ ] Document decision in
-        `docs/interview-skill/11-direction-decision.md` (still TODO —
-        `consolidated-plan.md` is a starting point but `11-direction-
-        decision.md` should be the formal ADR).
-  - [ ] Update root README Roadmap + this todos.md post-comparison
-        section to reflect hybrid direction (partly done by this
-        Adjudication block; root README still needs update).
+        `docs/interview-skill/11-direction-decision.md` (formal ADR
+        still TODO — `consolidated-plan.md` REVISION is the current
+        record but a dedicated ADR keeps the decision trail cleaner).
+  - [ ] Update root README (Phase 6 — to reflect single-plugin
+        workspace + archive layout).
 
 ## Post-comparison roadmap (blocked on CA3)
 

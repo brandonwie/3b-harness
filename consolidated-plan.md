@@ -7,6 +7,53 @@
 
 ---
 
+## ⚠️ REVISION (2026-04-23, later same day)
+
+The §2.1 adjudication below — "keep both variants as siblings, prompt-heavy vs engine-heavy is a deliberate design axis" — **was wrong**. The user corrected it:
+
+> the goal is that have SSoT that works on claude/codex/gemini/or any other ai agents. think again and see what's the best
+
+### What actually shipped
+
+| Old | New |
+|---|---|
+| `plugins/interview-claude/` + `plugins/interview-codex/` as canonical siblings | **One** plugin: [`plugins/3b/`](./plugins/3b/) |
+| Agent prompts duplicated in both dirs (drift risk flagged by both reviews) | **SSoT** [`plugins/3b/agents/`](./plugins/3b/agents/) — 7 prompts (incl. `ontologist`), referenced by both layers |
+| "Prompt-heavy vs engine-heavy" = two plugins | "Prompt-heavy vs engine-heavy" = two **layers** of one plugin: conversational (SKILL.md + agents) and programmatic (`engine/`) |
+| CA3 direction = (c) Hybrid | CA3 direction = **(a) Merge best-of-both**, with archive of originals |
+| Archive: none | `archive/plugins/interview-claude-v0.0.1/` + `archive/plugins/interview-codex-v0.1.0/` with explanatory READMEs |
+
+### Why the original adjudication was wrong
+
+1. **Misread user intent.** I took "this will be my complete plugin set so let's do like `/3b:interview`" as "plugin SET = multiple sibling plugins branded 3b." The user meant "plugin set = one plugin containing multiple skills, all under `/3b:` namespace." Future `/3b:simplify`, `/3b:wrap`, etc., require ONE plugin named `3b`, not siblings.
+2. **Over-weighted review-from-claude over review-from-codex.** Review-from-claude was *my* document; I treated its framing as more authoritative than codex's "codex canonical, archive claude" framing. Both were plausible; only the user could adjudicate; I adjudicated without asking.
+3. **Treated "axis preservation" as user-facing value.** Shipping two plugins to demonstrate a design axis is a **library-author concern**, not a user concern. Users want one plugin that works.
+4. **Ignored SSoT violation as "cross-pollination opportunity."** §4 Workstream C proposed lint/checksum to prevent drift between duplicated `ontologist.md` copies. That treats a symptom (duplication) without questioning its cause (two plugins holding the same prompts).
+
+### Where to read the executed plan
+
+The content below (§§ 0–10 of the original plan) is preserved as a **record of the design journey**. Sections about workstream structure, acceptance criteria, and cross-pollination still broadly apply — but read them with the consolidation in mind. Specifically:
+
+- **Workstream A (codex polish)** — mostly landed: manifest TODOs filled, docstring corrected, README runtime-integration section added. Now scoped to `plugins/3b/engine/`.
+- **Workstream B (claude polish)** — mostly landed: Path A deleted, slash command locked (`/3b:interview`), graduation criterion documented. Now scoped to `plugins/3b/` conversational layer.
+- **Workstream C (cross-pollination)** — **obsolete**. `ontologist` is no longer duplicated — it lives once in `plugins/3b/agents/ontologist.md` and is referenced by both layers. Drift prevention is structural, not procedural.
+- **Workstream D (harness docs)** — still outstanding. `docs/interview-skill/10-variant-comparison.md` should now describe the **two-layer architecture** (why the same plugin ships a conversational AND a programmatic surface) rather than "prompt-heavy vs engine-heavy as sibling plugins."
+
+The §6 "Cross-variant decision input" section is the part most affected — decision is now locked: merge, not hybrid.
+
+### Execution record
+
+| Phase | Commit (on branch `feat/interview-plugins-v010-polish`) | Scope |
+|---|---|---|
+| 1 | `feat(3b): scaffold consolidated plugin` | `git mv` `agents/`, `skills/`, `commands/`, `.claude-plugin/` from interview-claude → `plugins/3b/`; rewrite manifest + README |
+| 2 | `feat(3b): integrate python engine layer` | `git mv` codex src/tests/pyproject/uv.lock → `plugins/3b/engine/`; rewire prompt_loader to read from `../../agents/`; delete bundled `assets/`; add `ONTOLOGIST` perspective; all 60 tests still pass |
+| 3 | `feat(3b): add host manifests + tool mappings` | `git mv` `.codex-plugin/` into `plugins/3b/`; rewrite manifest (name `3b`, version `0.0.1`); add `claude-code-tools.md` |
+| 4 | `chore: archive interview-claude and interview-codex snapshots` | `git mv` old dirs into `archive/plugins/`; add explanatory READMEs |
+| 5 | `docs: record SSoT consolidation as final direction` | This REVISION section + `todos.md` adjudication update + CHANGELOG + legacy decision-doc pointers |
+| 6 | `docs: update root README for single-plugin workspace` | Root README reframed as "harness ships one plugin `3b`, not a marketplace of siblings" |
+
+---
+
 ## 0. TL;DR
 
 - **Do not pick one winner.** Both variants graduate to v0.1.0 as the canonical plugin for their respective host (Claude Code native vs Python-runtime integrators). The harness is the deliverable; divergence is intentional.

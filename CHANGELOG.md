@@ -13,6 +13,12 @@ per plugin.
 ### Harness-level
 
 #### Added
+- 2026-04-23 — **SSoT consolidation** — the harness now ships a single
+  plugin [`plugins/3b/`](./plugins/3b/) with two layers (conversational
+  SKILL.md + agents; optional Python engine) instead of two sibling
+  variants. Old dirs moved to [`archive/plugins/`](./archive/plugins/)
+  with explanatory READMEs. See the ⚠️ REVISION banner at the top of
+  [`consolidated-plan.md`](./consolidated-plan.md) for the rationale.
 - 2026-04-23 — Cross-variant self-review cycle + consolidated plan.
   `review-from-claude.md` (Claude reviewing `interview-claude`),
   `review-from-codex.md` (Codex reviewing `interview-codex`), and
