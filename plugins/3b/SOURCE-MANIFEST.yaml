@@ -1,0 +1,133 @@
+# ─────────────────────────────────────────────────────────────────────
+# 3b-forge Source Manifest
+# ─────────────────────────────────────────────────────────────────────
+# Maps each forge file derived from the maintainer's 3B repo to its
+# source path and the 3B commit SHA at the time of sync.
+#
+# Purpose
+#   - Drift detection: scripts/check-3b-drift.sh reads this manifest,
+#     runs `git -C $FORGE_3B_ROOT log <source_sha>..HEAD -- <source_path>`
+#     for each entry, and reports files whose 3B source has moved since
+#     the last sync.
+#   - No 3B content lives in this file — only path references and SHAs.
+#     Public-safe.
+#
+# Maintenance
+#   - On every new migration from 3B (or re-sync after drift detected),
+#     update the corresponding entry's `source_sha` and `synced_at`.
+#   - Wave 1 entries are NOT yet recorded here; they'll be back-filled
+#     the next time those files are re-derived from 3B.
+#
+# Scrub rule vocabulary
+#   - placeholder:{name}      — {placeholder}-style substitution (e.g.,
+#                                {github_user}, {blog_domain}, {project})
+#   - env_var:{NAME}          — runtime $NAME read (e.g., FORGE_3B_ROOT)
+#   - strip_personal_refs     — removed hardcoded project names, emails, etc.
+#   - strip_work_refs         — replaced work-project-specific examples
+#   - optional_gate           — added "skip if X absent" logic
+# ─────────────────────────────────────────────────────────────────────
+
+version: 1
+synced_at: 2026-04-24
+three_b_head_at_sync: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+three_b_working_tree_at_sync: dirty  # informational — 3B had uncommitted
+                                     # changes unrelated to Wave 2 sources
+
+entries:
+  # ── Skills (Wave 2) ─────────────────────────────────────────────────
+  - forge_path: plugins/3b/skills/check-symlinks/SKILL.md
+    source_path: .claude/skills/check-symlinks/SKILL.md
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub: [env_var:FORGE_3B_ROOT]
+
+  - forge_path: plugins/3b/skills/check-symlinks/scripts/check-symlinks.sh
+    source_path: .claude/skills/check-symlinks/scripts/check-symlinks.sh
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub: [env_var:FORGE_3B_ROOT, strip_work_refs, strip_personal_refs]
+
+  - forge_path: plugins/3b/skills/edx-study/SKILL.md
+    source_path: .claude/skills/edx-study/SKILL.md
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub: [env_var:FORGE_3B_ROOT]
+
+  - forge_path: plugins/3b/skills/edx-study/references/page-handlers.md
+    source_path: .claude/skills/edx-study/references/page-handlers.md
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub: []
+
+  - forge_path: plugins/3b/skills/edx-study/references/platform-patterns.md
+    source_path: .claude/skills/edx-study/references/platform-patterns.md
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub: []
+
+  - forge_path: plugins/3b/skills/blog-publish/SKILL.md
+    source_path: .claude/skills/blog-publish/SKILL.md
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub:
+      - env_var:FORGE_3B_ROOT
+      - env_var:BLOG_REPO
+      - placeholder:blog_domain
+      - strip_personal_refs
+
+  - forge_path: plugins/3b/skills/blog-publish/references/blog-writing-guide.md
+    source_path: .claude/skills/blog-publish/references/blog-writing-guide.md
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub: [placeholder:blog_domain]
+
+  - forge_path: plugins/3b/skills/research-paper/SKILL.md
+    source_path: .claude/skills/research-paper/SKILL.md
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub: [env_var:FORGE_3B_ROOT]
+
+  - forge_path: plugins/3b/skills/research-paper/references/paper-blog-guide.md
+    source_path: .claude/skills/research-paper/references/paper-blog-guide.md
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub: [env_var:BLOG_REPO, strip_personal_refs]
+
+  - forge_path: plugins/3b/skills/research-paper/references/linkedin-post-guide.md
+    source_path: .claude/skills/research-paper/references/linkedin-post-guide.md
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub: []
+
+  - forge_path: plugins/3b/skills/rollup/SKILL.md
+    source_path: .claude/skills/rollup/SKILL.md
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub: [env_var:FORGE_3B_ROOT]
+
+  # ── Rules (Wave 2) ──────────────────────────────────────────────────
+  - forge_path: plugins/3b/rules/mcp-strategy.md
+    source_path: .claude/rules/mcp-strategy.md
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub: [strip_work_refs]
+
+  - forge_path: plugins/3b/rules/local-migration.md
+    source_path: .claude/rules/local-migration.md
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub: [placeholder:project]
+
+  # ── Agents (Wave 2) ─────────────────────────────────────────────────
+  - forge_path: plugins/3b/agents/knowledge-librarian.md
+    source_path: .claude/agents/knowledge-librarian.md
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub: [placeholder:project]
+
+  - forge_path: plugins/3b/agents/context-reviewer.md
+    source_path: .claude/agents/context-reviewer.md
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub: [placeholder:project, strip_work_refs]
+
+  # ── Hooks (Wave 2) ──────────────────────────────────────────────────
+  - forge_path: installer/hooks/profile-sync-hook.py
+    source_path: .claude/global-claude-setup/scripts/profile-sync-hook.py
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub: [env_var:FORGE_3B_ROOT, optional_gate]
+
+  - forge_path: installer/hooks/friction-context-hook.py
+    source_path: .claude/global-claude-setup/scripts/friction-context-hook.py
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub: []  # no leaks; verbatim copy
+
+  - forge_path: installer/hooks/knowledge-staleness-hook.py
+    source_path: .claude/global-claude-setup/scripts/knowledge-staleness-hook.py
+    source_sha: f9c6d19c444ed014ce9eef576c6bd584d5ab1fed
+    scrub: [env_var:FORGE_3B_ROOT, optional_gate]
