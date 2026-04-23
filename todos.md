@@ -20,22 +20,35 @@ Goal: diff the two interview plugin snapshots
 v0.1.0) side by side, decide the path forward, then unblock the
 release roadmap.
 
-- [ ] **CA1 — Cross-analyze both snapshots.** Diff across 8 design axes:
-  - [ ] Folder layout + manifest shape
-        (`.claude-plugin/plugin.json` vs `.codex-plugin/*.json`)
-  - [ ] Cross-agent portability strategy (SKILL.md dual-path vs
-        Codex-specific vs portable-Python)
-  - [ ] Scoring approach (agent-only qualitative vs Python numerical
-        core in `plugins/interview-codex/src/interview_plugin_core/ambiguity.py`)
-  - [ ] Agent / perspective prompt set (7 in `interview-claude`
-        including `ontologist` vs whatever `interview-codex` ships in
-        its `assets/`)
-  - [ ] State / persistence model (none in `-claude` vs whatever
-        `-codex` does in `src/interview_plugin_core/`)
-  - [ ] Test strategy (none yet in `-claude` vs `tests/` in `-codex`)
-  - [ ] Dependency footprint (zero Python deps vs uv-managed project
-        with pyproject + uv.lock)
-  - [ ] Distribution approach (Claude marketplace vs Codex native)
+### Adjudication (2026-04-23)
+
+CA1 + CA3 resolved via self-review cross-analysis:
+
+- [`review-from-claude.md`](./review-from-claude.md) — Claude's review of
+  `interview-claude` against `interview-codex` baseline.
+- [`review-from-codex.md`](./review-from-codex.md) — Codex's review of
+  `interview-codex` against `interview-claude` baseline.
+- [`consolidated-plan.md`](./consolidated-plan.md) — reconciles both
+  reviews into one executable plan.
+
+**Direction chosen: CA3 option (c) — Hybrid.** Keep two specialized
+variants for different deploy targets. **Prompt-heavy vs engine-heavy
+is a deliberate design axis, not a bug** (consolidated-plan §3).
+Archiving either variant is explicitly rejected.
+
+- `interview-claude` (manifest name: `3b`) = canonical for Claude Code
+  native users. Prompt-heavy, zero runtime deps, slash command
+  `/3b:interview`.
+- `interview-codex` = canonical for Python-runtime integrators. Engine-
+  heavy, pluggable `LLMAdapter`, numeric ambiguity scoring.
+
+CA2's `docs/interview-skill/10-variant-comparison.md` still needs to be
+written to document the design-axis thesis externally (harness-level
+deliverable D1 in `consolidated-plan.md`).
+
+- [x] **CA1 — Cross-analyze both snapshots.** Done via `review-from-claude.md`
+  + `review-from-codex.md`. All 8 design axes covered. See also
+  `consolidated-plan.md` §1 structural comparison matrix.
 
 - [ ] **CA2 — Write `docs/interview-skill/10-variant-comparison.md`**
   (EN). Contents:
@@ -48,15 +61,15 @@ release roadmap.
         `docs/interview-skill/10-variant-comparison.ko.md`
   - [ ] Update `docs/interview-skill/README.md` index to list doc 10
 
-- [ ] **CA3 — Decide direction.** Options:
-  - [ ] (a) Merge best-of-both into a single new plugin (new name TBD)
-  - [ ] (b) Promote one as primary; archive the other as reference
-  - [ ] (c) Hybrid — keep two specialized variants for different use
-        cases
+- [x] **CA3 — Decide direction.** Chose **(c) Hybrid** — keep two
+  specialized variants. See Adjudication block above for rationale.
   - [ ] Document decision in
-        `docs/interview-skill/11-direction-decision.md`
+        `docs/interview-skill/11-direction-decision.md` (still TODO —
+        `consolidated-plan.md` is a starting point but `11-direction-
+        decision.md` should be the formal ADR).
   - [ ] Update root README Roadmap + this todos.md post-comparison
-        section accordingly
+        section to reflect hybrid direction (partly done by this
+        Adjudication block; root README still needs update).
 
 ## Post-comparison roadmap (blocked on CA3)
 

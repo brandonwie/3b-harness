@@ -13,6 +13,13 @@ per plugin.
 ### Harness-level
 
 #### Added
+- 2026-04-23 — Cross-variant self-review cycle + consolidated plan.
+  `review-from-claude.md` (Claude reviewing `interview-claude`),
+  `review-from-codex.md` (Codex reviewing `interview-codex`), and
+  `consolidated-plan.md` (reconciliation) committed at repo root. CA1
+  resolved; CA3 direction chosen: **Hybrid** — keep both variants as
+  canonical for their respective deploy targets. See `todos.md`
+  Adjudication block.
 - Renamed repository `brandonwie/ask-socratic` → `brandonwie/3b-harness`
   to reflect the expanded scope (harness for multiple plugins / skills
   / future MCP servers).
@@ -35,11 +42,25 @@ per plugin.
 ### `plugins/interview-claude/` (was `plugins/interview/`)
 
 #### Changed
+- 2026-04-23 — Plugin manifest `name` renamed `interview-claude` → `3b`.
+  Slash command is now `/3b:interview`. Directory stays
+  `plugins/interview-claude/` (paired with `interview-codex/`). This is
+  a manifest-only rename; the plugin is the lead skill of the 3b-harness
+  plugin set.
+- 2026-04-23 — `skills/interview/SKILL.md`: Path A (future MCP mode)
+  references deleted along with `interview-ai` PyPI package mentions.
+  The skill is now single-path (in-conversation, prompt-heavy). A
+  future numerical-scoring variant is the separate `interview-codex`
+  plugin.
+- 2026-04-23 — README rewritten: added explicit **graduation
+  criterion** (0.0.1 → 0.1.0) documenting the four conditions under
+  which `not-for-use` keyword lifts.
 - Renamed folder `plugins/interview/` → `plugins/interview-claude/`
   for visible symmetry with `plugins/interview-codex/`. Pairing makes
   the "snapshot / not-yet-shipping / pending comparison" stance clear.
 - Plugin identity renamed `interview` → `interview-claude`. Slash
-  command is now `/interview-claude:interview`.
+  command was `/interview-claude:interview` (later renamed to
+  `/3b:interview` on 2026-04-23 — see entry above).
 - Version demoted `0.1.0-alpha` → `0.0.1` to reflect not-for-use
   status. Paired with `plugins/interview-codex/`'s `v0.1.0` snapshot,
   the lower number signals "earlier, less mature" which is accurate —
