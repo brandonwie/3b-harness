@@ -14,9 +14,14 @@ import subprocess
 import sys
 
 # Repos that are always allowed for cross-repo writes (basename of repo root).
-# 3b is the knowledge base — Claude frequently writes buffer, journals, and
-# knowledge entries there from any project.
-WHITELISTED_REPOS = {"3b", "brandonwie"}
+# Default includes `3b` — the 3B knowledge base, where Claude frequently writes
+# buffer, journals, and knowledge entries from any project. Override or extend
+# via the SCOPE_WARNING_WHITELIST env var (comma-separated repo basenames).
+_default_whitelist = {"3b"}
+_env_whitelist = os.environ.get("SCOPE_WARNING_WHITELIST", "")
+WHITELISTED_REPOS = _default_whitelist | {
+    name.strip() for name in _env_whitelist.split(",") if name.strip()
+}
 
 
 def get_git_root(path):
