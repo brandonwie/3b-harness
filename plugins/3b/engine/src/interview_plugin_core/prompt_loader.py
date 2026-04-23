@@ -1,13 +1,18 @@
 """Agent prompt loader -- single source of truth for all agent system prompts.
 
-Loads prompt .md files with an explicit 2-tier resolution strategy:
+Loads prompt .md files with an explicit 3-tier resolution strategy:
 
 1. ``INTERVIEW_CODEX_PROMPTS_DIR`` env var -- user-managed override directory
-2. ``importlib.resources`` bundle           -- canonical packaged prompts
+2. ``plugins/3b/agents/`` filesystem       -- SSoT shared with the skill playbook
+3. ``importlib.resources`` bundle          -- fallback for pip-installed wheels
+   (empty by default in repo checkouts; populated at wheel build time if
+   packaging configures ``force-include`` to copy the SSoT agents/ into
+   ``interview_plugin_core.assets``).
 
-This keeps ``interview_plugin_core.assets`` as the authoritative default source while
-still allowing deliberate overrides without depending on the current working
-directory.
+The filesystem tier is the canonical default in a repo checkout. The
+engine lives at ``plugins/3b/engine/src/interview_plugin_core/`` and the
+agents live at ``plugins/3b/agents/`` — one directory per prompt, shared
+with the conversational ``SKILL.md`` playbook.
 """
 
 from __future__ import annotations
@@ -22,6 +27,9 @@ import re
 # ---------------------------------------------------------------------------
 # Path resolution
 # ---------------------------------------------------------------------------
+
+
+_SSOT_AGENTS_DIR = Path(__file__).resolve().parents[3] / "agents"
 
 
 @functools.lru_cache(maxsize=64)
@@ -43,7 +51,12 @@ def _resolve_agent_path(agent_name: str) -> Path | None:
         if path.exists():
             return path
 
-    # Tier 2: fall through to importlib.resources
+    # Tier 2: SSoT filesystem — plugins/3b/agents/
+    path = _SSOT_AGENTS_DIR / filename
+    if path.exists():
+        return path
+
+    # Tier 3: fall through to importlib.resources (wheel fallback)
     return None
 
 
@@ -69,15 +82,17 @@ def load_agent_prompt(agent_name: str) -> str:
     if path is not None:
         return path.read_text(encoding="utf-8")
 
-    # Bundled fallback
-    package = importlib.resources.files("interview_plugin_core.assets")
-    resource = package.joinpath(f"{agent_name}.md")
+    # Tier 3: importlib.resources bundled fallback (for wheel installs)
     try:
+        package = importlib.resources.files("interview_plugin_core.assets")
+        resource = package.joinpath(f"{agent_name}.md")
         return resource.read_text(encoding="utf-8")
-    except (FileNotFoundError, TypeError):
+    except (FileNotFoundError, TypeError, ModuleNotFoundError):
         raise FileNotFoundError(
             f"Agent prompt not found: {agent_name}.md "
-            f"(searched INTERVIEW_CODEX_PROMPTS_DIR and interview_plugin_core.assets)"
+            f"(searched INTERVIEW_CODEX_PROMPTS_DIR, "
+            f"{_SSOT_AGENTS_DIR}, "
+            f"and interview_plugin_core.assets)"
         ) from None
 
 

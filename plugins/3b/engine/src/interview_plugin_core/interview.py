@@ -49,6 +49,7 @@ class InterviewPerspective(StrEnum):
     ARCHITECT = "architect"
     BREADTH_KEEPER = "breadth-keeper"
     SEED_CLOSER = "seed-closer"
+    ONTOLOGIST = "ontologist"
 
 
 @dataclass(frozen=True, slots=True)
@@ -73,6 +74,7 @@ def _load_interview_perspective_strategies() -> dict[
         InterviewPerspective.ARCHITECT: "architect",
         InterviewPerspective.BREADTH_KEEPER: "breadth-keeper",
         InterviewPerspective.SEED_CLOSER: "seed-closer",
+        InterviewPerspective.ONTOLOGIST: "ontologist",
     }
 
     return {
