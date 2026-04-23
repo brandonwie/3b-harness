@@ -1,13 +1,13 @@
 {
-  "name": "ask-socratic",
+  "name": "interview",
   "version": "0.1.0-alpha",
   "description": "Socratic interview to crystallize vague requirements into clear specifications. Cross-agent: Claude Code, Codex, Gemini CLI.",
   "author": {
     "name": "Brandon Wie",
     "email": "brandonwie.cs@gmail.com"
   },
-  "repository": "https://github.com/brandonwie/ask-socratic",
-  "homepage": "https://github.com/brandonwie/ask-socratic",
+  "repository": "https://github.com/brandonwie/3b-harness",
+  "homepage": "https://github.com/brandonwie/3b-harness/tree/main/plugins/interview",
   "license": "MIT",
   "keywords": [
     "interview",

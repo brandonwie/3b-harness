@@ -1,161 +1,102 @@
-# ask-socratic
+# 3b-harness
 
-Socratic interview to crystallize vague requirements into clear specifications.
-Cross-agent: works on Claude Code, Codex, and Gemini CLI.
+Personal workspace for AI-agent extensions — **plugins**, **skills**,
+**agents**, and (soon) **MCP servers** — built and maintained for
+Claude Code, Codex, and Gemini CLI.
 
-> **Status:** `v0.1.0-alpha` — Path B (agent fallback) only. MCP server
-> (`ask-socratic-ai` package) arriving in `v0.2.0`.
+> Not a single plugin. A harness: the container where the primary
+> implementations, alternate variants, analysis docs, and shared
+> tooling all live together so one can be compared against another and
+> the best design promoted.
 
-## What it does
-
-Takes a vague topic ("build a payment module", "add search to my app") and
-guides you through a structured Socratic interview until the requirements are
-concrete enough to act on. Outputs a YAML-frontmatter + markdown summary
-(goal / constraints / acceptance criteria / non-goals / open questions).
-
-Forks the `interview` skill from [Q00/ouroboros](https://github.com/Q00/ouroboros)
-with cross-agent portability and a narrowed scope (interview-only — no
-downstream seed/execute/evaluate stages).
-
-## How it works (short version)
-
-- 7 internal perspectives (researcher, simplifier, architect, breadth-keeper,
-  seed-closer, ontologist, plus the outer socratic-interviewer role) rotate
-  based on interview state.
-- **Dialectic Rhythm Guard**: at most 3 consecutive rounds without direct
-  user judgment; the next one must route to the user.
-- **Seed-ready Acceptance Guard**: before closing, the main session checks
-  canonical criteria (scope, non-goals, outputs, verification explicit?
-  material blockers resolved?) and refuses premature closure.
-- On Claude Code uses `AskUserQuestion` for structured input; Gemini uses
-  `ask_user`; Codex falls back to plain-text option blocks.
-
-## Install
-
-### Claude Code
-
-```bash
-claude plugin marketplace add brandonwie/ask-socratic
-claude plugin install ask-socratic@ask-socratic
-```
-
-Then trigger with `/ask-socratic:interview "your topic"` or the natural
-language trigger `"interview me about <topic>"`.
-
-### Codex CLI
-
-1. Clone this repo somewhere:
-   ```bash
-   git clone https://github.com/brandonwie/ask-socratic ~/.codex/plugins/ask-socratic
-   ```
-2. Codex auto-discovers the skill on next start.
-3. Trigger: `/ask-socratic:interview "your topic"`.
-
-Note: Codex has no native `AskUserQuestion` equivalent. The skill falls
-back to plain-text option blocks — functional, slightly rougher UX than
-Claude Code.
-
-### Gemini CLI
-
-1. Clone into your Gemini CLI plugins directory (or configure `GEMINI.md`
-   with a skill reference — check your Gemini CLI docs for the current
-   preferred install path).
-2. Trigger: the skill activates via `activate_skill` for the `interview`
-   skill name.
-
-## Usage
+## Layout
 
 ```
-/ask-socratic:interview Build a payment module that integrates with Stripe
+3b-harness/
+├── plugins/                         # one subdir per plugin
+│   ├── interview/                   # primary build — analysis-driven design
+│   └── interview-codex/             # Codex-generated variant — for comparison
+├── docs/                            # design analysis + cross-variant reports
+│   └── interview-skill/             # 10 analysis docs that informed interview/
+├── CHANGELOG.md                     # harness + plugin changes
+├── LICENSE                          # MIT
+└── README.md                        # this file
 ```
 
-The interview runs for 5–15 rounds depending on how complete your initial
-context is. At the end you get a YAML+markdown summary you can paste into
-a design doc, PR description, or ticket system.
+## What's inside right now
 
-### Example interview flow
+| Path | Purpose | Status |
+|---|---|---|
+| [`plugins/interview/`](./plugins/interview/) | Socratic interview plugin — cross-agent (Claude / Codex / Gemini), Path B only in alpha | `v0.1.0-alpha` |
+| [`plugins/interview-codex/`](./plugins/interview-codex/) | Codex-generated portable interview with Python scoring core — moved here for side-by-side comparison | `v0.1.0` (Codex-author's versioning) |
+| [`docs/interview-skill/`](./docs/interview-skill/) | 10 markdown files analyzing the upstream Ouroboros interview skill — overview, routing decision tree, rhythm guard, ambiguity scoring, state persistence, agents/perspectives, PM variant, customization guide, plugin build decisions (EN + KO) | reference |
 
-```
-User: /ask-socratic:interview Add search to my app
+## Why a harness, not separate repos?
 
-Round 1 — perspective: researcher
-"What kind of data are you searching, and what is the current storage
-backend (Postgres, ElasticSearch, files, etc.)?"
-
-Round 2 — perspective: breadth-keeper
-...
-
-...
-
-Round 8 — closure audit
-"Scope, non-goals, outputs, and verification are all explicit. Ready to
-finalize the summary?"
-
-→ User: "yes"
-
----
-topic: Add search to my app
-goal: Introduce full-text search across the product-catalog Postgres table
-  with <200ms p99 latency, typo tolerance, and faceted filtering.
-constraints:
-  - Must use existing Postgres (no new service for v1)
-  - Must preserve existing admin CRUD latency budget
-  ...
-acceptance_criteria:
-  - p99 search latency < 200ms on 100k records
-  - Typos up to edit distance 2 return the intended result
-  ...
-non_goals:
-  - Semantic/vector search (considered for v2)
-  - Personalization
-open_questions:
-  - Exact faceting fields — deferred until UX review
----
-
-# Interview Summary — Add search to my app
-
-(narrative...)
-```
-
-## File structure
-
-```
-ask-socratic/
-├── .claude-plugin/plugin.json       # Claude Code manifest
-├── commands/interview.md            # slash-command entry
-├── skills/interview/
-│   ├── SKILL.md                     # dual-path playbook (Path B only in alpha)
-│   └── references/
-│       ├── codex-tools.md           # Claude→Codex tool mapping
-│       └── gemini-tools.md          # Claude→Gemini tool mapping
-├── agents/                          # 7 role prompts
-│   ├── socratic-interviewer.md      # outer role
-│   ├── seed-closer.md               # closure audit
-│   ├── researcher.md                # perspective 1
-│   ├── simplifier.md                # perspective 2
-│   ├── architect.md                 # perspective 3
-│   ├── breadth-keeper.md            # perspective 4
-│   └── ontologist.md                # perspective 5 (added vs upstream)
-├── LICENSE
-├── CHANGELOG.md
-└── README.md
-```
+- **Cross-analysis.** Two implementations of the "same" skill — one
+  hand-built from analysis, one LLM-generated — side by side. Easier
+  to compare, diff, and learn from differences.
+- **Shared context.** The analysis docs under `docs/` inform every
+  plugin here; keeping them in-repo means they are always current with
+  the implementations.
+- **Future MCP servers.** Planned: `mcp/` directory for Python MCP
+  servers that back the richer plugin modes (e.g., `interview-ai`
+  package backing `plugins/interview/` Path A).
+- **One install surface.** Users can clone one thing, pick what they
+  want.
 
 ## Roadmap
 
-- **v0.1.0-alpha** (current) — Path B only. Works everywhere, no persistence, qualitative closure.
-- **v0.2.0** — Path A (MCP) via `ask-socratic-ai` PyPI package. Filesystem state, numerical ambiguity gate, session_id handoff.
-- **v0.3.0** — PM variant + brownfield auto-detection. Full feature parity with upstream Ouroboros interview subsystem.
+### `plugins/interview/`
+- [x] **v0.1.0-alpha** — Path B (agent fallback) only, cross-agent.
+- [ ] **v0.2.0** — Path A (MCP) via `interview-ai` PyPI package.
+  Full numerical ambiguity gate, filesystem persistence, session_id
+  handoff. See
+  [docs/interview-skill/09-plugin-build-decisions.md](./docs/interview-skill/09-plugin-build-decisions.md).
+- [ ] **v0.3.0** — PM variant (product-requirement interviews) +
+  brownfield auto-detection.
 
-## Credits
+### Cross-variant work
+- [ ] **Comparison report** — merge best design features from
+  `plugins/interview/` and `plugins/interview-codex/`. Land in
+  `docs/interview-skill/10-variant-comparison.md`.
+- [ ] Promote winning design into one canonical plugin; keep the other
+  archived as a reference.
 
-Forked from the `interview` skill in
-[Q00/ouroboros](https://github.com/Q00/ouroboros). Upstream carries the
-original Socratic methodology, five-perspective model, and numerical
-ambiguity-scoring design. This fork narrows scope (interview-only) and
-adds cross-agent portability (Codex, Gemini) plus the ontologist
-perspective.
+### Additional plugins (TBD)
+- [ ] Potential candidates: skill for /edit workflow, /simplify post-PR
+  review, codebase summary, custom /ralph loop, /wrap variants, etc.
+
+## Install (per plugin)
+
+Each plugin under `plugins/` is independently installable. See its
+`README.md` for per-agent instructions:
+
+- [plugins/interview/README.md](./plugins/interview/README.md)
+- [plugins/interview-codex/README.md](./plugins/interview-codex/README.md)
+
+Claude Code users can install the marketplace (single `claude plugin
+marketplace add brandonwie/3b-harness`) and then pick per-plugin
+installs.
+
+## Contributing
+
+This is a personal harness. Issues welcome for discussion, but direct
+PRs are not the expected contribution pattern — the harness evolves as
+the maintainer's understanding of the agent landscape evolves.
 
 ## License
 
 MIT. See [LICENSE](./LICENSE).
+
+Each plugin may credit its upstream separately. `plugins/interview/`
+credits [Q00/ouroboros](https://github.com/Q00/ouroboros).
+`plugins/interview-codex/` credits the same upstream via its own
+README.
+
+## See also
+
+- [Ouroboros](https://github.com/Q00/ouroboros) — upstream source of
+  the interview skill analyzed and ported here.
+- [3b](https://github.com/brandonwie/3b) (private, personal) — the
+  knowledge system this harness is adjacent to.

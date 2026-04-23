@@ -4,7 +4,7 @@ description: "Socratic interview to crystallize vague requirements into clear sp
 aliases: [socratic]
 ---
 
-# /ask-socratic:interview
+# /interview:interview
 
 Socratic interview that turns a vague request ("build a payment module",
 "add search to my app") into a concrete, actionable specification via
@@ -13,7 +13,7 @@ structured questioning. Works across Claude Code, Codex, and Gemini CLI.
 ## Usage
 
 ```
-/ask-socratic:interview [topic]
+/interview:interview [topic]
 ```
 
 **Trigger keywords:** "interview me", "clarify requirements", "socratic interview"
@@ -35,14 +35,14 @@ different platform:
 
 ### Step 0 — Load MCP tools (TOMBSTONED for v0.1.0-alpha)
 
-> **v0.1.0-alpha note:** The `ask-socratic-ai` PyPI package with the MCP
+> **v0.1.0-alpha note:** The `interview-ai` PyPI package with the MCP
 > server is **not yet shipped**. Skip this step and proceed directly to
 > **Path B (fallback)**.
 >
 > In v0.2.0+, this step will run:
 >
 > ```
-> ToolSearch query: "+ask-socratic interview"
+> ToolSearch query: "+interview"
 > ```
 >
 > If the tool is found → proceed to **Path A (MCP mode)**. If not → fall
@@ -52,8 +52,8 @@ For v0.1.0-alpha, always use **Path B** below.
 
 ### Path A — MCP Mode (v0.2.0+; not available in alpha)
 
-Not available in `v0.1.0-alpha`. When the `ask-socratic-ai` package ships
-in v0.2.0, this path will use the `ask-socratic_interview` MCP tool for
+Not available in `v0.1.0-alpha`. When the `interview-ai` package ships
+in v0.2.0, this path will use the `interview_interview` MCP tool for
 persistent, numerically-gated interviews with session_id handoff.
 
 ### Path B — Agent Fallback (primary path in v0.1.0-alpha)
@@ -295,7 +295,7 @@ spec.
 ## Example Session (Path B)
 
 ```
-User: /ask-socratic:interview Add payment module to existing project
+User: /interview:interview Add payment module to existing project
 
 (Perspective: researcher)
 Q1: "Is this a greenfield or brownfield project? If brownfield, what's
