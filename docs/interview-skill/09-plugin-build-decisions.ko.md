@@ -12,12 +12,22 @@ related:
 
 # 플러그인 빌드 결정 — 크로스 에이전트용 interview skill 포크
 
-> **이름 업데이트 (post-doc):** 이 문서 작성 후 레포명이 `ask-socratic` →
-> `3b-harness` (여러 플러그인을 담는 harness)로 변경되었고, 플러그인 자체
-> 이름도 폴더명과 일치시키기 위해 `ask-socratic` → `interview`로 단순화됨.
-> 이 문서의 `ask-socratic`은 `interview`로, `ask-socratic-ai` (Phase 2
-> PyPI 패키지)는 `interview-ai`로 읽어야 함. 슬래시 커맨드는
-> `/interview:interview`. 레포 루트의 CHANGELOG에서 이름 변경 기록 참조.
+> **이름 업데이트 (post-doc, 2회):**
+>
+> 1. 레포명 `ask-socratic` → `3b-harness` (repo = 여러 플러그인을 담는
+>    harness).
+> 2. 플러그인 스냅샷의 이름이 최종적으로 **`interview-claude`** (NOT
+>    `ask-socratic`, NOT `interview`)로 정해짐 — 형제 격인 Codex 생성
+>    스냅샷 (`plugins/interview-codex/`)과 시각적으로 대칭. 버전도 `v0.0.1`로
+>    강등 — 이 플러그인은 `interview-codex`와의 cross-analysis를 위해 보관된
+>    **not-for-use 스냅샷**이지, 배포 가능한 빌드가 아님.
+>
+> 이 문서를 읽을 때: `ask-socratic`은 `interview-claude`로, `ask-socratic-ai`
+> (Phase 2 PyPI 패키지)는 `interview-ai`로 읽으면 됨. 슬래시 커맨드는
+> `/interview-claude:interview`. 레포 루트의 CHANGELOG에서 전체 이름 변경
+> 기록 참조. Phase 2 / Phase 3 빌드 플랜은 여전히 유효하지만 —
+> `interview-claude` vs `interview-codex` cross-variant 비교에서 승자가
+> 결정된 *후에만* 적용됨.
 
 ## 개정 — 2026-04-23
 

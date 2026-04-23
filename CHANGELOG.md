@@ -32,17 +32,28 @@ per plugin.
   Python project).
 - Top-level README rewritten to describe 3b-harness as a workspace.
 
-### `plugins/interview/`
+### `plugins/interview-claude/` (was `plugins/interview/`)
 
 #### Changed
-- Renamed plugin identity from `ask-socratic` to `interview` to match
-  the folder name and parallel the Codex variant's naming convention.
-  Slash command is now `/interview:interview`.
-- Updated `plugin.json` repository + homepage URLs to the new
-  `brandonwie/3b-harness` location.
-- SKILL.md references to `/ask-socratic:interview` updated to
-  `/interview:interview`; references to `ask-socratic-ai` package
-  (Phase 2) updated to `interview-ai`.
+- Renamed folder `plugins/interview/` → `plugins/interview-claude/`
+  for visible symmetry with `plugins/interview-codex/`. Pairing makes
+  the "snapshot / not-yet-shipping / pending comparison" stance clear.
+- Plugin identity renamed `interview` → `interview-claude`. Slash
+  command is now `/interview-claude:interview`.
+- Version demoted `0.1.0-alpha` → `0.0.1` to reflect not-for-use
+  status. Paired with `plugins/interview-codex/`'s `v0.1.0` snapshot,
+  the lower number signals "earlier, less mature" which is accurate —
+  `interview-codex` ships a Python scoring core whereas
+  `interview-claude` is skill+agents only.
+- plugin.json `description` + `keywords` updated to include
+  `"snapshot"` + `"not-for-use"` flags.
+- README rewritten as a **snapshot intent** document explaining why
+  it is deliberately un-released pending cross-analysis.
+
+#### Earlier history (during initial build, pre-rename)
+- Plugin was `ask-socratic` at `v0.1.0-alpha`. See the v0.1.0-alpha
+  entry below for the original scope. That version number was retired
+  before any distribution channel saw it — internal-only churn.
 
 ---
 

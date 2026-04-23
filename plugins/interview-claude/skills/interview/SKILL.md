@@ -4,7 +4,7 @@ description: "Socratic interview to crystallize vague requirements into clear sp
 aliases: [socratic]
 ---
 
-# /interview:interview
+# /interview-claude:interview
 
 Socratic interview that turns a vague request ("build a payment module",
 "add search to my app") into a concrete, actionable specification via
@@ -13,7 +13,7 @@ structured questioning. Works across Claude Code, Codex, and Gemini CLI.
 ## Usage
 
 ```
-/interview:interview [topic]
+/interview-claude:interview [topic]
 ```
 
 **Trigger keywords:** "interview me", "clarify requirements", "socratic interview"
@@ -42,7 +42,7 @@ different platform:
 > In v0.2.0+, this step will run:
 >
 > ```
-> ToolSearch query: "+interview"
+> ToolSearch query: "+interview-claude"
 > ```
 >
 > If the tool is found → proceed to **Path A (MCP mode)**. If not → fall
@@ -53,7 +53,7 @@ For v0.1.0-alpha, always use **Path B** below.
 ### Path A — MCP Mode (v0.2.0+; not available in alpha)
 
 Not available in `v0.1.0-alpha`. When the `interview-ai` package ships
-in v0.2.0, this path will use the `interview_interview` MCP tool for
+in v0.2.0, this path will use the `interview-claude_interview` MCP tool for
 persistent, numerically-gated interviews with session_id handoff.
 
 ### Path B — Agent Fallback (primary path in v0.1.0-alpha)
@@ -295,7 +295,7 @@ spec.
 ## Example Session (Path B)
 
 ```
-User: /interview:interview Add payment module to existing project
+User: /interview-claude:interview Add payment module to existing project
 
 (Perspective: researcher)
 Q1: "Is this a greenfield or brownfield project? If brownfield, what's

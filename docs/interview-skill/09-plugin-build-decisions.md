@@ -11,13 +11,24 @@ related:
 
 > 한국어판: [./09-plugin-build-decisions.ko.md](./09-plugin-build-decisions.ko.md)
 
-> **Name update (post-doc):** After this doc was written, the repo was
-> renamed `ask-socratic` → `3b-harness` (repo = harness containing
-> multiple plugins), and the plugin's own name was simplified from
-> `ask-socratic` → `interview` to match its folder. Wherever this doc
-> says `ask-socratic` read `interview`; where it says `ask-socratic-ai`
-> (the Phase 2 PyPI package) read `interview-ai`. Slash command is now
-> `/interview:interview`. See the root CHANGELOG for the rename record.
+> **Name update (post-doc, two rounds):**
+>
+> 1. Repo renamed `ask-socratic` → `3b-harness` (repo = harness
+>    containing multiple plugins).
+> 2. Plugin snapshot's own name settled as **`interview-claude`** (NOT
+>    `ask-socratic`, NOT `interview`) to pair visibly with the sibling
+>    Codex-generated snapshot at `plugins/interview-codex/`. Version
+>    demoted to `v0.0.1` — this plugin is a **not-for-use snapshot**
+>    held for cross-analysis against `interview-codex`, not a
+>    distribution-ready build.
+>
+> When reading the rest of this doc: where it says `ask-socratic` read
+> `interview-claude`; where it says `ask-socratic-ai` (Phase 2 PyPI
+> package) read `interview-ai`. Slash command is
+> `/interview-claude:interview`. See the root CHANGELOG for the full
+> rename record. The Phase 2 / Phase 3 build plan still applies — but
+> only *after* the cross-variant comparison picks a winner between
+> `interview-claude` and `interview-codex`.
 
 # Plugin build decisions — cross-agent interview skill fork
 

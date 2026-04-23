@@ -14,10 +14,10 @@ Claude Code, Codex, and Gemini CLI.
 ```
 3b-harness/
 ├── plugins/                         # one subdir per plugin
-│   ├── interview/                   # primary build — analysis-driven design
-│   └── interview-codex/             # Codex-generated variant — for comparison
+│   ├── interview-claude/            # Claude-session authored snapshot (v0.0.1, not-for-use)
+│   └── interview-codex/             # Codex-generated snapshot (v0.1.0, not-for-use)
 ├── docs/                            # design analysis + cross-variant reports
-│   └── interview-skill/             # 10 analysis docs that informed interview/
+│   └── interview-skill/             # 10 analysis docs informing the interview plugins
 ├── CHANGELOG.md                     # harness + plugin changes
 ├── LICENSE                          # MIT
 └── README.md                        # this file
@@ -27,9 +27,13 @@ Claude Code, Codex, and Gemini CLI.
 
 | Path | Purpose | Status |
 |---|---|---|
-| [`plugins/interview/`](./plugins/interview/) | Socratic interview plugin — cross-agent (Claude / Codex / Gemini), Path B only in alpha | `v0.1.0-alpha` |
-| [`plugins/interview-codex/`](./plugins/interview-codex/) | Codex-generated portable interview with Python scoring core — moved here for side-by-side comparison | `v0.1.0` (Codex-author's versioning) |
+| [`plugins/interview-claude/`](./plugins/interview-claude/) | Claude-session authored snapshot — cross-agent (Claude / Codex / Gemini), Path B only, no scoring core | `v0.0.1` — snapshot, not-for-use pending comparison |
+| [`plugins/interview-codex/`](./plugins/interview-codex/) | Codex-generated snapshot — portable interview with Python scoring core, skills, tests | `v0.1.0` — snapshot, not-for-use pending comparison |
 | [`docs/interview-skill/`](./docs/interview-skill/) | 10 markdown files analyzing the upstream Ouroboros interview skill — overview, routing decision tree, rhythm guard, ambiguity scoring, state persistence, agents/perspectives, PM variant, customization guide, plugin build decisions (EN + KO) | reference |
+
+Both plugin snapshots are deliberately un-released. Neither is the
+"winner" yet — they exist side-by-side so the two approaches can be
+diffed and the best features merged. See the Roadmap below.
 
 ## Why a harness, not separate repos?
 
@@ -47,21 +51,23 @@ Claude Code, Codex, and Gemini CLI.
 
 ## Roadmap
 
-### `plugins/interview/`
-- [x] **v0.1.0-alpha** — Path B (agent fallback) only, cross-agent.
-- [ ] **v0.2.0** — Path A (MCP) via `interview-ai` PyPI package.
+### Cross-variant work (current focus)
+- [x] `plugins/interview-claude/` **v0.0.1** snapshot — not-for-use.
+- [x] `plugins/interview-codex/` **v0.1.0** snapshot — not-for-use.
+- [ ] **Comparison report** — diff both snapshots across design axes
+  (cross-agent portability, scoring, persistence, prompt rotation, test
+  strategy). Land in `docs/interview-skill/10-variant-comparison.md`.
+- [ ] Merge best features into a single promoted plugin (new name TBD
+  post-comparison); keep the other as reference.
+
+### Post-comparison roadmap (applies to whichever plugin wins)
+- [ ] **v0.1.0** — first usable release (cross-agent, Path B).
+- [ ] **v0.2.0** — Path A (MCP) via an `interview-ai` PyPI package.
   Full numerical ambiguity gate, filesystem persistence, session_id
   handoff. See
   [docs/interview-skill/09-plugin-build-decisions.md](./docs/interview-skill/09-plugin-build-decisions.md).
 - [ ] **v0.3.0** — PM variant (product-requirement interviews) +
   brownfield auto-detection.
-
-### Cross-variant work
-- [ ] **Comparison report** — merge best design features from
-  `plugins/interview/` and `plugins/interview-codex/`. Land in
-  `docs/interview-skill/10-variant-comparison.md`.
-- [ ] Promote winning design into one canonical plugin; keep the other
-  archived as a reference.
 
 ### Additional plugins (TBD)
 - [ ] Potential candidates: skill for /edit workflow, /simplify post-PR
@@ -72,7 +78,7 @@ Claude Code, Codex, and Gemini CLI.
 Each plugin under `plugins/` is independently installable. See its
 `README.md` for per-agent instructions:
 
-- [plugins/interview/README.md](./plugins/interview/README.md)
+- [plugins/interview-claude/README.md](./plugins/interview-claude/README.md)
 - [plugins/interview-codex/README.md](./plugins/interview-codex/README.md)
 
 Claude Code users can install the marketplace (single `claude plugin
