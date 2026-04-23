@@ -1,0 +1,27 @@
+{
+  "name": "3b",
+  "version": "0.0.1",
+  "description": "3b-harness single source of truth. Currently ships the `/3b:interview` Socratic skill. Cross-agent: Claude Code, Codex, Gemini CLI, and any future agent host that can read markdown skills. Optional Python engine at `engine/` for programmatic integrators (numeric ambiguity scoring, state persistence).",
+  "author": {
+    "name": "Brandon Wie",
+    "email": "brandonwie.cs@gmail.com"
+  },
+  "repository": "https://github.com/brandonwie/3b-harness",
+  "homepage": "https://github.com/brandonwie/3b-harness/tree/main/plugins/3b",
+  "license": "MIT",
+  "keywords": [
+    "3b",
+    "harness",
+    "interview",
+    "socratic",
+    "requirements",
+    "specifications",
+    "cross-agent",
+    "claude-code",
+    "codex",
+    "gemini",
+    "ssot",
+    "pre-release"
+  ],
+  "skills": "./skills/"
+}
