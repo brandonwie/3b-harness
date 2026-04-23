@@ -1,0 +1,35 @@
+{
+  "name": "3b",
+  "version": "0.0.2",
+  "description": "3b-forge single source of truth. Ships /3b:interview (Socratic interview engine with 7 role agents + optional Python core) plus 11 additional portable skills (clarify, investigate, review-pr, pr-creator, issue-creator, add-pr-self-reviews, validate-pr-reviews, doc-audit, graphify, translate-ko, task-tracker), 1 agent (claude-forge-crosschecker), and 13 methodology rules under rules/. Cross-agent: Claude Code, Codex, Gemini CLI.",
+  "author": {
+    "name": "Brandon Wie",
+    "email": "brandonwie.cs@gmail.com"
+  },
+  "repository": "https://github.com/brandonwie/3b-forge",
+  "homepage": "https://github.com/brandonwie/3b-forge/tree/main/plugins/3b",
+  "license": "MIT",
+  "keywords": [
+    "3b",
+    "forge",
+    "interview",
+    "socratic",
+    "requirements",
+    "specifications",
+    "cross-agent",
+    "claude-code",
+    "codex",
+    "gemini",
+    "ssot",
+    "pre-release",
+    "skills",
+    "rules",
+    "methodology",
+    "yaml-frontmatter",
+    "pr-review",
+    "zettelkasten"
+  ],
+  "skills": "./skills/",
+  "agents": "./agents/",
+  "commands": "./commands/"
+}

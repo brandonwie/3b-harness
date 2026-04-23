@@ -1,0 +1,17 @@
+{
+  "description": "Known Claude Code plugin marketplaces",
+  "marketplaces": [
+    {
+      "id": "claude-plugins-official",
+      "name": "Official Claude Plugins",
+      "url": "https://github.com/anthropics/claude-plugins-official",
+      "description": "Official plugins from Anthropic and verified publishers"
+    },
+    {
+      "id": "claude-hud",
+      "name": "Claude HUD",
+      "url": "https://github.com/fsargent/claude-hud",
+      "description": "Heads-up display plugin marketplace"
+    }
+  ]
+}

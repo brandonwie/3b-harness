@@ -35,3 +35,60 @@ Thumbs.db
 
 # uv
 .uv/
+
+# Personal WIP / scratch / prototypes (not for publication)
+tmp/
+
+# Auto-generated agent context stubs (claude-mem)
+AGENTS.md
+
+# Claude Code per-user settings
+.claude/settings.local.json
+
+# 3B symlink (personal content, gitignored)
+docs
+
+# =============================================================================
+# 3B-bounded plugin content staged locally but NOT for public distribution.
+# See plugins/3b/PUBLIC-PRIVATE-SPLIT.md for the rationale.
+#
+# Maintainer's workflow: when syncing a 3B-coupled skill into the plugin dir
+# for local dev convenience, git-ignores prevent accidental OSS publication.
+# Un-ignore when the underlying 3B generalizes enough to ship publicly.
+# =============================================================================
+
+# Tier-C skills (tightly coupled to 3B layout/files)
+plugins/3b/skills/wrap/
+plugins/3b/skills/clean-actives/
+plugins/3b/skills/project-context-loader/
+plugins/3b/skills/archive-task/
+plugins/3b/skills/code-historian/
+plugins/3b/skills/init-3b/
+plugins/3b/skills/sync-profile/
+plugins/3b/skills/task-starter/
+plugins/3b/skills/organize-3b-versions/
+plugins/3b/skills/anc/
+plugins/3b/skills/anc.md
+
+# Tier-C rules (3B-specific file layout / anti-patterns / failure modes)
+plugins/3b/rules/3b-known-failure-modes.md
+plugins/3b/rules/3b-markdown-authoring.md
+plugins/3b/rules/projects-and-repositories.md
+plugins/3b/rules/personal-folder-governance.md
+plugins/3b/rules/_index.md
+plugins/3b/rules/moba-*.md
+plugins/3b/rules/crucio-*.md
+
+# Tier-C agents (Tier-B agents staged locally stay private until parameterized)
+plugins/3b/agents/knowledge-librarian.md
+plugins/3b/agents/context-reviewer.md
+
+# Installer sensitive staging (personal settings, tracker data, work perms)
+installer/settings.json
+installer/settings.local.work.json
+installer/settings.json.bak-*
+installer/task-tracker.json
+installer/commands/init-3b.md
+installer/hooks/profile-sync-hook.py
+installer/hooks/friction-context-hook.py
+installer/hooks/knowledge-staleness-hook.py

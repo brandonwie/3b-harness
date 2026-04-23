@@ -1,0 +1,60 @@
+{
+  "lineLayout": "expanded",
+  "showSeparators": true,
+  "pathLevels": 1,
+  "elementOrder": [
+    "project",
+    "context",
+    "usage",
+    "environment",
+    "tools",
+    "agents",
+    "todos"
+  ],
+  "gitStatus": {
+    "enabled": true,
+    "showDirty": true,
+    "showAheadBehind": true,
+    "showFileStats": true
+  },
+  "display": {
+    "showModel": true,
+    "showProject": true,
+    "showContextBar": true,
+    "showTools": false,
+    "showAgents": true,
+    "showTodos": true,
+    "showConfigCounts": true,
+    "showTokenBreakdown": true,
+    "showUsage": true,
+    "usageBarEnabled": true,
+    "showDuration": false,
+    "showSpeed": false,
+    "showCost": false,
+    "showSessionTokens": true,
+    "showClaudeCodeVersion": false,
+    "showMemoryUsage": false,
+    "showOutputStyle": false,
+    "showSessionName": false,
+    "contextValue": "percent",
+    "usageThreshold": 0,
+    "sevenDayThreshold": 0,
+    "environmentThreshold": 0,
+    "modelFormat": "full",
+    "modelOverride": "",
+    "customLine": "Spend so much time on self-improvement that you have no time to criticize others."
+  },
+  "colors": {
+    "context": "#5fffaf",
+    "usage": "#5fffaf",
+    "warning": "#ffaf87",
+    "usageWarning": "#ffaf87",
+    "critical": "#ff5f5f",
+    "model": "#87d7ff",
+    "project": "#ffaf5f",
+    "git": "#ff87af",
+    "gitBranch": "#af5fff",
+    "label": "#8787af",
+    "custom": "#af5fff"
+  }
+}

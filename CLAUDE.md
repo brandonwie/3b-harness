@@ -1,0 +1,1 @@
+/Users/brandonwie/dev/personal/3b/.claude/project-claude/3b-forge.md

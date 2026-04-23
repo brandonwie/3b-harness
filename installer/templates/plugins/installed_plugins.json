@@ -1,0 +1,48 @@
+{
+  "description": "List of Claude Code plugins to install. Use Claude Code CLI to install.",
+  "plugins": [
+    {
+      "id": "claude-hud@claude-hud",
+      "name": "Claude HUD",
+      "description": "Heads-up display for Claude Code CLI",
+      "enabled": true,
+      "marketplace": "claude-hud",
+      "install_notes": "Requires manual patch for theme customization"
+    },
+    {
+      "id": "context7@claude-plugins-official",
+      "name": "Context7",
+      "description": "Documentation and code examples retrieval",
+      "enabled": true,
+      "marketplace": "claude-plugins-official"
+    },
+    {
+      "id": "github@claude-plugins-official",
+      "name": "GitHub",
+      "description": "GitHub platform integration",
+      "enabled": true,
+      "marketplace": "claude-plugins-official"
+    },
+    {
+      "id": "frontend-design@claude-plugins-official",
+      "name": "Frontend Design",
+      "description": "Frontend design assistance",
+      "enabled": true,
+      "marketplace": "claude-plugins-official"
+    },
+    {
+      "id": "playwright@claude-plugins-official",
+      "name": "Playwright",
+      "description": "Browser automation and testing",
+      "enabled": true,
+      "marketplace": "claude-plugins-official"
+    },
+    {
+      "id": "security-guidance@claude-plugins-official",
+      "name": "Security Guidance",
+      "description": "Security best practices",
+      "enabled": true,
+      "marketplace": "claude-plugins-official"
+    }
+  ]
+}

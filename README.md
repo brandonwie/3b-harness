@@ -1,108 +1,132 @@
-# 3b-harness
+# 3b-forge
 
-Personal workspace for AI-agent extensions — **plugins**, **skills**,
-**agents**, and (soon) **MCP servers** — built and maintained for
-Claude Code, Codex, and Gemini CLI.
+Personal workspace for the **`3b`** cross-agent plugin — built and
+maintained for Claude Code, Codex, Gemini CLI, and (in principle) any
+future AI agent host that can read markdown-based skills.
 
-> Not a single plugin. A harness: the container where the primary
-> implementations, alternate variants, analysis docs, and shared
-> tooling all live together so one can be compared against another and
-> the best design promoted.
+> Single Source of Truth layout: the plugin's agent prompts, skill
+> playbooks, and (optional) Python engine live once, and are shared
+> across every host via per-host manifests. No sibling duplication.
+
+## What ships today
+
+| Path | Purpose | Status |
+|---|---|---|
+| [`plugins/3b/`](./plugins/3b/) | The consolidated `3b` plugin. Ships `/3b:interview` (Socratic requirement interview) with a conversational layer (SKILL.md + 7 agent prompts) AND an optional Python engine (`engine/`) for programmatic integrators. | `v0.0.1` — pre-release |
+| [`todos.md`](./todos.md) | Near-term backlog for the forge. | active |
+| [`CHANGELOG.md`](./CHANGELOG.md) | Release history. | active |
 
 ## Layout
 
 ```
-3b-harness/
-├── plugins/                         # one subdir per plugin
-│   ├── interview-claude/            # Claude-session authored snapshot (v0.0.1, not-for-use)
-│   └── interview-codex/             # Codex-generated snapshot (v0.1.0, not-for-use)
-├── docs/                            # design analysis + cross-variant reports
-│   └── interview-skill/             # 10 analysis docs informing the interview plugins
-├── CHANGELOG.md                     # harness + plugin changes
+3b-forge/
+├── plugins/
+│   └── 3b/                          # the consolidated cross-agent plugin
+│       ├── .claude-plugin/          # Claude Code manifest
+│       ├── .codex-plugin/           # Codex manifest
+│       ├── skills/interview/        # /3b:interview SKILL.md + tool mappings
+│       ├── agents/                  # SSoT role prompts (7)
+│       ├── commands/                # slash-command stubs
+│       ├── engine/                  # optional Python layer (interview_plugin_core)
+│       └── README.md
+├── todos.md                         # near-term backlog
+├── CHANGELOG.md
 ├── LICENSE                          # MIT
 └── README.md                        # this file
 ```
 
-## What's inside right now
+## Why ONE plugin with two layers, not two sibling plugins
 
-| Path | Purpose | Status |
-|---|---|---|
-| [`plugins/interview-claude/`](./plugins/interview-claude/) | Claude-session authored snapshot — cross-agent (Claude / Codex / Gemini), Path B only, no scoring core | `v0.0.1` — snapshot, not-for-use pending comparison |
-| [`plugins/interview-codex/`](./plugins/interview-codex/) | Codex-generated snapshot — portable interview with Python scoring core, skills, tests | `v0.1.0` — snapshot, not-for-use pending comparison |
-| [`docs/interview-skill/`](./docs/interview-skill/) | 10 markdown files analyzing the upstream Ouroboros interview skill — overview, routing decision tree, rhythm guard, ambiguity scoring, state persistence, agents/perspectives, PM variant, customization guide, plugin build decisions (EN + KO) | reference |
+The plugin keeps both prompt-heavy and engine-heavy surfaces inside
+**one** installable as two **layers**:
 
-Both plugin snapshots are deliberately un-released. Neither is the
-"winner" yet — they exist side-by-side so the two approaches can be
-diffed and the best features merged. See the Roadmap below.
-
-## Why a harness, not separate repos?
-
-- **Cross-analysis.** Two implementations of the "same" skill — one
-  hand-built from analysis, one LLM-generated — side by side. Easier
-  to compare, diff, and learn from differences.
-- **Shared context.** The analysis docs under `docs/` inform every
-  plugin here; keeping them in-repo means they are always current with
-  the implementations.
-- **Future MCP servers.** Planned: `mcp/` directory for Python MCP
-  servers that back the richer plugin modes (e.g., `interview-ai`
-  package backing `plugins/interview/` Path A).
-- **One install surface.** Users can clone one thing, pick what they
-  want.
+- **Conversational layer** — `skills/interview/SKILL.md` + the 7
+  prompts under `agents/`. Zero runtime deps. Works on any AI agent
+  host that reads markdown skills. This is the default path.
+- **Programmatic layer** — `engine/` holds a Python package
+  (`interview_plugin_core`) for CLI / server / automation integrators
+  who need numeric ambiguity scoring (0–1 scale, 40/30/30 weighting),
+  file-locked `InterviewState` persistence, and a pluggable
+  `LLMAdapter` protocol. 60+ pytest-asyncio tests. Loads prompts
+  from the shared `agents/` directory — no duplication.
 
 ## Roadmap
 
-### Cross-variant work (current focus)
-- [x] `plugins/interview-claude/` **v0.0.1** snapshot — not-for-use.
-- [x] `plugins/interview-codex/` **v0.1.0** snapshot — not-for-use.
-- [ ] **Comparison report** — diff both snapshots across design axes
-  (cross-agent portability, scoring, persistence, prompt rotation, test
-  strategy). Land in `docs/interview-skill/10-variant-comparison.md`.
-- [ ] Merge best features into a single promoted plugin (new name TBD
-  post-comparison); keep the other as reference.
+### v0.0.1 → v0.1.0 (current focus)
 
-### Post-comparison roadmap (applies to whichever plugin wins)
-- [ ] **v0.1.0** — first usable release (cross-agent, Path B).
-- [ ] **v0.2.0** — Path A (MCP) via an `interview-ai` PyPI package.
-  Full numerical ambiguity gate, filesystem persistence, session_id
-  handoff. See
-  [docs/interview-skill/09-plugin-build-decisions.md](./docs/interview-skill/09-plugin-build-decisions.md).
-- [ ] **v0.3.0** — PM variant (product-requirement interviews) +
-  brownfield auto-detection.
+Graduation criteria documented in
+[`plugins/3b/README.md`](./plugins/3b/README.md). Outstanding items:
 
-### Additional plugins (TBD)
-- [ ] Potential candidates: skill for /edit workflow, /simplify post-PR
-  review, codebase summary, custom /ralph loop, /wrap variants, etc.
+- [ ] Validate perspective-rotation decision table in SKILL.md §B.6 via
+  golden transcripts (greenfield + brownfield).
+- [ ] Add per-dimension observable-signal rubric to `seed-closer.md`.
+- [ ] Document session-continuity transcript convention (path under
+  `projects/*/actives/` + frontmatter schema).
+- [ ] 2+ golden transcript fixtures under `plugins/3b/fixtures/`.
+- [ ] Cross-host install flow verified end-to-end on Claude Code + Codex.
 
-## Install (per plugin)
+### Post-v0.1.0 (speculative)
 
-Each plugin under `plugins/` is independently installable. See its
-`README.md` for per-agent instructions:
+- [ ] Additional `/3b:<skill>` members as they emerge from practice —
+  candidates: `/3b:simplify`, `/3b:wrap`, `/3b:review`, `/3b:brainstorm`.
+  Each new skill joins `plugins/3b/skills/<name>/`, reuses the
+  existing `agents/` where relevant.
+- [ ] Publish `interview_plugin_core` wheel to PyPI with `force-include`
+  bundling `agents/` into the wheel so pip-installed users don't need
+  the filesystem SSoT path.
+- [ ] Optional MCP wrapper around `engine/` for Claude Code plugin
+  hosts that want server-side persistence; would load the same
+  engine, no new code.
 
-- [plugins/interview-claude/README.md](./plugins/interview-claude/README.md)
-- [plugins/interview-codex/README.md](./plugins/interview-codex/README.md)
+## Install
 
-Claude Code users can install the marketplace (single `claude plugin
-marketplace add brandonwie/3b-harness`) and then pick per-plugin
-installs.
+> Pre-release. Install paths below are the intended shape; verify
+> before publishing.
+
+Claude Code users:
+
+```bash
+claude plugin marketplace add brandonwie/3b-forge
+claude plugin install 3b
+```
+
+Codex users: discovery via `.codex-plugin/plugin.json` inside
+`plugins/3b/`. Concrete command varies by Codex CLI version.
+
+Gemini CLI: plugin format still evolving; best-effort support via the
+portable SKILL.md format.
+
+Programmatic (Python) integrators:
+
+```bash
+cd plugins/3b/engine
+uv sync --extra dev
+uv run python -m pytest -q
+```
+
+See [`plugins/3b/engine/README.md`](./plugins/3b/engine/README.md) for
+the `LLMAdapter` contract and the round-driving loop.
+
+## Upstream
+
+The `interview` skill forks from
+[Q00/ouroboros](https://github.com/Q00/ouroboros). Upstream carries
+the original Socratic methodology, five-perspective model, and
+numerical ambiguity-scoring design. The 3b consolidation adds the
+`ontologist` perspective, the cross-agent manifest layer, and the
+two-layer architecture.
 
 ## Contributing
 
-This is a personal harness. Issues welcome for discussion, but direct
-PRs are not the expected contribution pattern — the harness evolves as
-the maintainer's understanding of the agent landscape evolves.
+Personal workspace. Issues welcome for discussion; direct PRs are not
+the expected contribution pattern.
 
 ## License
 
 MIT. See [LICENSE](./LICENSE).
 
-Each plugin may credit its upstream separately. `plugins/interview/`
-credits [Q00/ouroboros](https://github.com/Q00/ouroboros).
-`plugins/interview-codex/` credits the same upstream via its own
-README.
-
 ## See also
 
-- [Ouroboros](https://github.com/Q00/ouroboros) — upstream source of
-  the interview skill analyzed and ported here.
+- [Ouroboros](https://github.com/Q00/ouroboros) — upstream source.
 - [3b](https://github.com/brandonwie/3b) (private, personal) — the
   knowledge system this harness is adjacent to.

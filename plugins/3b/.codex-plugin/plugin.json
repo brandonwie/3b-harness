@@ -1,0 +1,42 @@
+{
+  "name": "3b",
+  "version": "0.0.1",
+  "description": "3b-forge single source of truth. Currently ships the `/3b:interview` Socratic skill plus an optional Python engine for programmatic integrators. Cross-agent: works on Codex, Claude Code, Gemini CLI.",
+  "author": {
+    "name": "Brandon Wie",
+    "email": "brandonwie.cs@gmail.com",
+    "url": "https://github.com/brandonwie"
+  },
+  "homepage": "https://github.com/brandonwie/3b-forge/tree/main/plugins/3b",
+  "repository": "https://github.com/brandonwie/3b-forge",
+  "license": "MIT",
+  "keywords": [
+    "3b",
+    "harness",
+    "interview",
+    "socratic",
+    "requirements",
+    "specification",
+    "cross-agent",
+    "codex",
+    "claude-code",
+    "gemini",
+    "ssot",
+    "pre-release"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "3b",
+    "shortDescription": "Socratic interview + future 3b skills; cross-agent SSoT plugin.",
+    "longDescription": "3b is the consolidated 3b-forge plugin. Today it ships the `/3b:interview` skill — a Socratic interviewer that turns vague requirements into actionable specs via rotating perspectives (researcher, simplifier, architect, breadth-keeper, seed-closer, ontologist). An optional Python engine at `engine/` provides programmatic access with numeric ambiguity scoring and file-locked state persistence for integrators.",
+    "developerName": "Brandon Wie",
+    "category": "Productivity",
+    "capabilities": [
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use the 3b:interview skill to clarify vague requirements before implementation."
+    ],
+    "screenshots": []
+  }
+}
