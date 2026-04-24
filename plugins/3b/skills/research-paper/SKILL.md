@@ -71,14 +71,14 @@ invoking any skill.
 | Pasted text      | Inline text about the paper                                                  | Supplementary context |
 | No args          | Nothing provided                                                             | List mode             |
 
-**0b. Classify each material into a role:**
+**0c. Classify each material into a role:**
 
 - **Primary source**: The actual paper (URL or PDF). There should be exactly 1.
 - **Supplementary context**: Blog posts, social posts, someone's notes, markdown
   summaries. There can be 0 or many.
 - **Discovery context**: How/where the user found it. Captured in frontmatter.
 
-**0c. Validate and clarify (CRITICAL):**
+**0d. Validate and clarify (CRITICAL):**
 
 Present the inventory to the user and ask what's missing:
 
@@ -109,7 +109,7 @@ Ready to proceed?
 If the user says "that's all" or confirms, proceed. If they add more materials,
 re-inventory.
 
-**0d. List mode (no args):**
+**0e. List mode (no args):**
 
 1. Read `{INDEX_PATH}`
 2. Show: total papers, papers by status, recent additions, reading queue
@@ -421,5 +421,5 @@ Next steps:
 | Paper is paywalled                   | IEEE, ACM, Springer without open access   | Ask for local PDF. If unavailable, proceed in abstract-only mode (`access: abstract-only`, `confidence: low`) |
 | No primary source found              | User gave only context files or notes     | Ask: "I see context but no paper source. Can you share the paper link or PDF?"                                |
 | Can't extract metadata from PDF      | Scanned PDF or unusual formatting         | Ask user for title, authors, year manually                                                                    |
-| Mixed inputs unclear                 | Multiple URLs, unclear which is the paper | Present inventory from Step 0c, ask user to confirm roles                                                     |
+| Mixed inputs unclear                 | Multiple URLs, unclear which is the paper | Present inventory from Step 0d, ask user to confirm roles                                                     |
 | Position paper with Results template | Wrong paper type detected                 | User can override type in Step 1c. Template adapts sections accordingly                                       |
