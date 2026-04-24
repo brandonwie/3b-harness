@@ -4,8 +4,9 @@ Single Source of Truth for the forge. One plugin, many skills, rules, and
 agents. Works across Claude Code, Codex, Gemini CLI, and any future AI agent
 host that can read markdown-based skills.
 
-> **Status:** `v0.0.2` — **pre-release**. Wave 1 expansion: 11 portable
-> skills, 13 methodology rules, 1 new agent added 2026-04-24.
+> **Status:** `v0.0.4` — **pre-release**. Wave 3 SSoT flip landed
+> 2026-04-24; forge owns the 18 manifest entries, 3B consumes via
+> relative symlink. See [SSoT topology](#ssot-topology-wave-3).
 
 ## Current skills
 
@@ -92,6 +93,53 @@ used by the conversational layer — there is no duplication.
 
 **If you don't need programmatic access, ignore the `engine/` folder
 entirely.**
+
+## SSoT topology (Wave 3)
+
+Forge is Single Source of Truth for the 18 manifest entries. The 3B repo
+(maintainer's private knowledge tree) holds relative symlinks into forge
+instead of its own copies. Future edits to shared skills / rules / agents /
+hooks happen once, in forge. 3B-private content (wrap, clean-actives,
+task-starter, etc.) stays as real files in 3B.
+
+```mermaid
+flowchart LR
+    subgraph Forge["3b-forge repo (SoT)"]
+        F1[plugins/3b/skills/*]
+        F2[plugins/3b/rules/*]
+        F3[plugins/3b/agents/*]
+        F4[installer/hooks/*]
+        M[SOURCE-MANIFEST.yaml]
+    end
+
+    subgraph ThreeB["3B repo (consumer)"]
+        direction TB
+        S1[".claude/skills/* (symlinks)"]
+        S2[".claude/rules/* (symlinks)"]
+        S3[".claude/agents/* (symlinks)"]
+        S4[".claude/global-claude-setup/scripts/* (symlinks)"]
+        P[".claude/skills/wrap/ (private, real)"]
+    end
+
+    F1 -. relative symlink .-> S1
+    F2 -. relative symlink .-> S2
+    F3 -. relative symlink .-> S3
+    F4 -. relative symlink .-> S4
+    M -. tracks .-> S1 & S2 & S3 & S4
+
+    style Forge fill:#1f2937,stroke:#3b82f6,color:#fff
+    style ThreeB fill:#374151,stroke:#9ca3af,color:#fff
+```
+
+**Migration tooling:**
+
+- [`../../scripts/flip-to-forge.sh`](../../scripts/flip-to-forge.sh) —
+  performs the flip (`--dry-run` / `--execute` / `--rollback`).
+- [`../../scripts/check-3b-drift.sh`](../../scripts/check-3b-drift.sh) —
+  post-flip integrity checks (symlink integrity, wrong targets, untracked
+  candidates, reintroduced hardcoded paths, plugin-reinstall damage).
+- [`PUBLIC-PRIVATE-SPLIT.md`](./PUBLIC-PRIVATE-SPLIT.md) — tier rubric
+  (Tier A = in manifest; Tier B = candidate; Tier C = 3B-private).
 
 ## Per-host manifests
 
