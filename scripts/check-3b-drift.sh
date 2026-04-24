@@ -36,10 +36,8 @@
 set -euo pipefail
 
 # --- Flag parsing -----------------------------------------------------------
-VERBOSE=0
 for arg in "$@"; do
 	case "$arg" in
-	--verbose | -v) VERBOSE=1 ;;
 	-h | --help)
 		sed -n '2,33p' "$0"
 		exit 0
