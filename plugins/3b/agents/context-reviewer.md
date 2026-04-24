@@ -45,8 +45,9 @@ Given a proposed change (new entry, update, or rule change), you will:
 - Are `tags:` values from the canonical taxonomy?
   - Domains: `work`, `personal`, `{project1}`, `{project2}` (customize for your repos)
   - Topics: `aws`, `devops`, `backend`, `google`, `networking`, `kubernetes`,
-    `payments`, `security`, `ai-ml`, `icalendar`, `rfc5545`
-  - Types: `journal`, `knowledge`, `guide`, `architecture`, `reference`
+    `payments`, `security`, `ai-ml`, `icalendar`, `rfc5545` (customize for your repos)
+  - Types: `journal`, `knowledge`, `guide`, `architecture`, `reference`,
+    `paper`, `research`
 - Are `related:` paths valid relative paths to existing files?
 - Is `confidence:` rating justified by the content and references?
 - Are `references:` URLs from credible sources? (Check
