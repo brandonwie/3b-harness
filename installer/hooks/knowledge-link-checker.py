@@ -11,7 +11,7 @@ Usage:
 The root path resolves from (priority order):
   1. --root CLI argument
   2. FORGE_3B_ROOT env var
-  3. Otherwise: parser error — user must set one.
+  3. Otherwise: exit 0 (fail-open; non-3B installs are a no-op).
 """
 import argparse
 import os
@@ -75,7 +75,9 @@ def main():
     args = parser.parse_args()
 
     if not args.root:
-        parser.error("--root or FORGE_3B_ROOT must be set")
+        # No 3B configured — link check is a no-op. Matches the fail-open
+        # contract documented in installer/README.md for sibling hooks.
+        sys.exit(0)
 
     scan_dirs = [
         os.path.join(args.root, "knowledge"),
