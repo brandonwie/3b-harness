@@ -255,9 +255,9 @@ Repeat for each page:
    reliable for iframe content)
 2. `get_page_text(tabId)` — get parent page text (sidebar, nav — useful for
    detecting page type and section progress)
-3. For lecture-text pages only: try JS scroll to bottom once (`javascript_tool`
-   → `document.querySelector('.unit-container').scrollTop = scrollHeight`), then
-   screenshot again if new content appears
+3. For lecture-text pages only: use `computer` to scroll down once in the main
+   page content (for example with Page Down or mouse wheel), then screenshot
+   again if new content appears
 4. For quiz/lab pages: do NOT scroll — ask user to screenshot hidden questions
 
 ### 3b. Classify Page Type
