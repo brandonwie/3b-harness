@@ -250,6 +250,54 @@ if [ -f "$STATE_FILE" ]; then
 	exit 2
 fi
 
+# ── Write .flip-state.json BEFORE the flip loop. ────────────────────────────
+# The plan is already fully validated at this point; the state file is the
+# rollback contract. Writing it first guarantees rollback availability even
+# if the flip loop aborts mid-way (disk full, permission error, signal, etc.).
+# Pass $PLAN via tempfile to avoid shell-into-python string-interpolation
+# fragility on paths containing special characters.
+PLAN_FILE=$(mktemp -t flip-plan.XXXXXX)
+trap 'rm -f "$PLAN_FILE"' EXIT
+printf '%s' "$PLAN" >"$PLAN_FILE"
+
+BASELINE_SHA="$BASELINE_SHA" \
+	FORGE_HOME="$FORGE_HOME" \
+	FORGE_3B_ROOT="$FORGE_3B_ROOT" \
+	STATE_FILE="$STATE_FILE" \
+	PLAN_FILE="$PLAN_FILE" \
+	python3 - <<'PY'
+import datetime
+import json
+import os
+
+state = {
+    "baseline_sha": os.environ["BASELINE_SHA"],
+    "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+    "forge_home": os.environ["FORGE_HOME"],
+    "forge_3b_root": os.environ["FORGE_3B_ROOT"],
+    "entries": [],
+}
+with open(os.environ["PLAN_FILE"]) as f:
+    for line in f.read().strip().splitlines():
+        parts = line.split("\t")
+        if len(parts) != 3:
+            continue
+        source_abs, forge_abs, rel_target = parts
+        state["entries"].append({
+            "source_path": os.path.relpath(source_abs, os.environ["FORGE_3B_ROOT"]),
+            "forge_path": os.path.relpath(forge_abs, os.environ["FORGE_HOME"]),
+            "relative_target": rel_target,
+            "original_mode": "regular-file",
+        })
+with open(os.environ["STATE_FILE"], "w") as f:
+    json.dump(state, f, indent=2)
+    f.write("\n")
+PY
+
+# ── Perform the flip. ───────────────────────────────────────────────────────
+# If this loop aborts mid-way, .flip-state.json already exists and a
+# subsequent --rollback will restore all 18 entries (git restores files that
+# were never flipped just as cleanly as ones that were).
 flipped=0
 while IFS=$'\t' read -r source_abs forge_abs rel_target; do
 	[ -z "$source_abs" ] && continue
@@ -258,42 +306,17 @@ while IFS=$'\t' read -r source_abs forge_abs rel_target; do
 	flipped=$((flipped + 1))
 done <<<"$PLAN"
 
-# Emit .flip-state.json for rollback reproducibility.
-python3 - <<PY
-import json, datetime, os
-state = {
-    "baseline_sha": "$BASELINE_SHA",
-    "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
-    "forge_home": "$FORGE_HOME",
-    "forge_3b_root": "$FORGE_3B_ROOT",
-    "entries": [],
-}
-plan = """$PLAN"""
-for line in plan.strip().splitlines():
-    parts = line.split("\t")
-    if len(parts) != 3:
-        continue
-    source_abs, forge_abs, rel_target = parts
-    state["entries"].append({
-        "source_path": os.path.relpath(source_abs, "$FORGE_3B_ROOT"),
-        "forge_path": os.path.relpath(forge_abs, "$FORGE_HOME"),
-        "relative_target": rel_target,
-        "original_mode": "regular-file",
-    })
-with open("$STATE_FILE", "w") as f:
-    json.dump(state, f, indent=2)
-    f.write("\n")
-PY
-
 echo ""
 echo "Flipped $flipped entr(ies)."
 echo "State recorded: $STATE_FILE"
 echo ""
-echo "Next steps:"
+echo "Next steps (DO NOT commit symlinks until verified):"
 echo "  1. cd \$FORGE_3B_ROOT"
 echo "  2. git status  # confirm 18 paths show mode change regular → symlink"
-echo "  3. git add <paths> && git commit (Wave 3 3B-side PR)"
-echo "  4. Copy $STATE_FILE into the PR body for reproducibility."
+echo "  3. Spot-check: cat a few paths, confirm forge content returned"
+echo "  4. git add <paths> && git commit (Wave 3 3B-side PR)"
+echo "  5. Copy $STATE_FILE into the PR body for reproducibility."
 echo ""
-echo "Rollback: bash $0 --rollback"
+echo "Rollback (safe before OR after commit — git tracks the baseline tree):"
+echo "  bash $0 --rollback"
 exit 0
