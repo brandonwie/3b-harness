@@ -70,37 +70,68 @@ When adding a new item to `plugins/3b/`:
    the logic is generic?**
    → Ship it publicly; sanitize comments to neutral language when convenient.
 
-## Coupling signal check
+## Tier classification (post-Wave-3)
 
-Run this grep anywhere in `plugins/3b/` (or when considering a new copy
-from 3B) to score coupling:
+After the Wave 3 SSoT flip, tier classification is **manifest-driven** for
+any file that has crossed into forge ownership. The grep-based heuristic
+below remains useful for scoring **new candidates** (files in 3B that have
+not yet been evaluated for the manifest), but for already-shipped content
+the source of truth is [`SOURCE-MANIFEST.yaml`](./SOURCE-MANIFEST.yaml).
+
+| Tier | Definition | Storage |
+|------|------------|---------|
+| **A** | Listed in `SOURCE-MANIFEST.yaml`. Forge owns the file; 3B consumes via symlink. | Committed in `plugins/3b/` (or `installer/hooks/`) |
+| **B** | Candidate — content looks portable but not yet migrated. Surfaced by `scripts/check-3b-drift.sh` Check C. | Real file in 3B `.claude/`; awaits manifest entry |
+| **C** | 3B-private. Hardcodes 3B layout or writes to 3B-owned paths. | Real file in 3B `.claude/`; gitignored in forge if present |
+
+A file's tier is therefore a property of where it lives in the system, not
+a score computed against its content.
+
+## Candidate scoring (new files only)
+
+Before adding a new 3B source to the manifest, use the existing grep
+rubric to confirm it is Tier-A-eligible:
 
 ```bash
 grep -cE '~/dev/personal/3b/|3b/knowledge|3b/journals|3b/projects/|buffer\.md|ACTIVE-STATUS|project-claude|prompts/.*PROJECT-CONFIG' "$FILE"
 ```
 
-- `0–2` hits → Tier A, commit publicly.
-- `3–10` hits → Tier B, commit publicly **only after** parameterizing the
-  hardcoded paths.
-- `≥ 12` hits → Tier C, gitignore it (or leave it in the 3B source repo).
+- `0–2` hits → Tier A candidate. Migrate, scrub if needed, add to manifest.
+- `3–10` hits → Tier B candidate. Parameterize (env vars + placeholders),
+  then migrate.
+- `≥ 12` hits → Tier C. Leave in 3B; do not migrate.
 
-## Drift tracking (Wave 2+)
+Check C in `scripts/check-3b-drift.sh` automates this scan against the
+four canonical 3B directories (`skills/`, `rules/`, `agents/`,
+`global-claude-setup/scripts/`) and lists unmigrated Tier-A-looking files
+as advisory findings.
 
-Once a file moves from 3B source into `plugins/3b/` (or `installer/hooks/`)
-as parameterized Tier-A/B content, it becomes a **derivative** of the 3B
-source. The 3B source keeps evolving; the forge copy does not auto-follow.
+## Drift tracking (Wave 2 through Wave 3)
 
-[`SOURCE-MANIFEST.yaml`](./SOURCE-MANIFEST.yaml) records, for each such
-derivative, the 3B `source_path` + `source_sha` at the time of sync, plus
-the `scrub` rules applied (env vars, placeholders, strip categories). No 3B
-content is stored — only path references and commit SHAs, so the manifest
-is public-safe.
+[`SOURCE-MANIFEST.yaml`](./SOURCE-MANIFEST.yaml) records, for each
+migrated entry, the 3B `source_path` + `source_sha` at the time of sync,
+plus the `scrub` rules applied (env vars, placeholders, strip categories).
+No 3B content is stored — only path references and commit SHAs, so the
+manifest is public-safe.
 
-To detect upstream drift, run
-[`../../scripts/check-3b-drift.sh`](../../scripts/check-3b-drift.sh) with
-`$FORGE_3B_ROOT` set. The script lists every entry whose 3B source has
-moved since its recorded SHA. Re-sync the file, re-apply its scrub rules,
-and update the manifest's `source_sha` + `synced_at`.
+**Wave 2 semantics (pre-flip):** forge held parameterized copies derived
+from 3B. The drift script counted commits in 3B since the recorded SHA and
+surfaced drift between forge and upstream.
+
+**Wave 3 semantics (post-flip):** forge is SoT. 3B consumes via relative
+symlink. The drift script no longer counts commits — that comparison is
+trivially equal. Instead, it runs five integrity checks:
+
+| Check | Trigger | Severity |
+|-------|---------|----------|
+| **A** | Manifest entry in 3B is not a symlink, or target missing | Critical |
+| **B** | Symlink resolves to the wrong forge path | Critical |
+| **C** | Tier-A-looking file in 3B not in the manifest | Advisory |
+| **D** | Forge Tier-A file reintroduced a `~/dev/personal/3b/` path | Advisory |
+| **E** | Recorded symlink got replaced by a regular file (plugin reinstall) | Critical |
+
+Checks A/B/E activate when `scripts/.flip-state.json` is present
+(post-flip mode). C/D run always.
 
 The [`claude-forge-crosschecker`](./agents/claude-forge-crosschecker.md)
 agent produces this audit in structured-report form via its **Mode 2 —
