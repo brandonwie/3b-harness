@@ -14,7 +14,8 @@
 #
 # Requirements:
 #   - $FORGE_3B_ROOT must point at a valid git repo
-#   - python3 (for YAML parsing)
+#   - python3 with PyYAML (for manifest parsing). Install via:
+#       pip install pyyaml   # or: brew install libyaml && pip install pyyaml
 # =============================================================================
 
 set -euo pipefail
@@ -70,7 +71,16 @@ fi
 # Emit tab-separated: forge_path<TAB>source_path<TAB>source_sha
 ENTRIES=$(
 	python3 - <<PY
-import yaml, sys
+import sys
+try:
+    import yaml
+except ImportError:
+    sys.stderr.write(
+        "ERROR: PyYAML is required to parse the drift manifest.\n"
+        "  Install: pip install pyyaml\n"
+        "  (or: brew install libyaml && pip install pyyaml)\n"
+    )
+    sys.exit(2)
 with open("$MANIFEST") as f:
     data = yaml.safe_load(f)
 for entry in data.get("entries", []):
