@@ -192,12 +192,31 @@ PLAN=""
 total=0
 errors=0
 
+REAL_FORGE_HOME=$(HOME_ABS="$FORGE_HOME" python3 -c 'import os; print(os.path.realpath(os.environ["HOME_ABS"]))')
+REAL_3B_ROOT=$(ROOT_ABS="$FORGE_3B_ROOT" python3 -c 'import os; print(os.path.realpath(os.environ["ROOT_ABS"]))')
+
 while IFS=$'\t' read -r forge_path source_path; do
 	[ -z "$forge_path" ] && continue
 	total=$((total + 1))
 
 	forge_abs="${FORGE_HOME}/${forge_path}"
 	source_abs="${FORGE_3B_ROOT}/${source_path}"
+
+	# Path-safety: reject manifest entries whose realpath escapes the
+	# intended repo roots. Prevents rm/ln -s from operating on arbitrary
+	# files if a manifest entry contains `../` segments.
+	real_forge=$(FORGE_ABS="$forge_abs" python3 -c 'import os; print(os.path.realpath(os.environ["FORGE_ABS"]))')
+	real_source=$(SOURCE_ABS="$source_abs" python3 -c 'import os; print(os.path.realpath(os.environ["SOURCE_ABS"]))')
+	if [[ "$real_forge" != "$REAL_FORGE_HOME"/* ]]; then
+		echo "  UNSAFE-PATH: $forge_path escapes FORGE_HOME" >&2
+		errors=$((errors + 1))
+		continue
+	fi
+	if [[ "$real_source" != "$REAL_3B_ROOT"/* ]]; then
+		echo "  UNSAFE-PATH: $source_path escapes FORGE_3B_ROOT" >&2
+		errors=$((errors + 1))
+		continue
+	fi
 
 	if [ ! -f "$forge_abs" ]; then
 		echo "  MISSING-FORGE-TARGET: $forge_path" >&2
