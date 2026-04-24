@@ -47,6 +47,9 @@ CONFIG_DIR = Path(os.environ.get("CLAUDE_CONFIG_DIR", os.path.expanduser("~/.cla
 _forge_3b_root = os.environ.get("FORGE_3B_ROOT")
 if not _forge_3b_root:
     # 3B opt-in via env var. Unset → dashboard regeneration is a no-op.
+    # Warn to stderr so the skip is observable in CI / --check-stale runs
+    # instead of masquerading as success.
+    sys.stderr.write("[dashboard] FORGE_3B_ROOT unset — skipping\n")
     sys.exit(0)
 THREE_B_PATH = Path(_forge_3b_root)
 
