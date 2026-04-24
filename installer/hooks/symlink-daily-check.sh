@@ -9,8 +9,15 @@ THROTTLE_SECONDS=86400 # 24 hours
 # Resolved via ~/.claude symlinks set up by installer/setup.sh.
 SCRIPT="$HOME/.claude/skills/check-symlinks/scripts/check-symlinks.sh"
 
-# Skip if script doesn't exist
-[ -x "$SCRIPT" ] || exit 0
+# Warn if script unreachable (likely a broken ~/.claude/skills symlink — the
+# very failure this hook is meant to surface). Still exit 0 so SessionStart
+# is not blocked on fresh installs where the symlinks don't exist yet.
+if [ ! -x "$SCRIPT" ]; then
+	if [ -d "$HOME/.claude" ]; then
+		echo "[SYMLINK-CHECK] check-symlinks.sh not reachable at $SCRIPT — run /check-symlinks"
+	fi
+	exit 0
+fi
 
 # Throttle: skip if checked within last 24h
 if [ -f "$THROTTLE_FILE" ]; then
