@@ -99,7 +99,7 @@ grep -cE '~/dev/personal/3b/|3b/knowledge|3b/journals|3b/projects/|buffer\.md|AC
 - `0–2` hits → Tier A candidate. Migrate, scrub if needed, add to manifest.
 - `3–10` hits → Tier B candidate. Parameterize (env vars + placeholders),
   then migrate.
-- `≥ 12` hits → Tier C. Leave in 3B; do not migrate.
+- `≥ 11` hits → Tier C. Leave in 3B; do not migrate.
 
 Check C in `scripts/check-3b-drift.sh` automates this scan against the
 four canonical 3B directories (`skills/`, `rules/`, `agents/`,
