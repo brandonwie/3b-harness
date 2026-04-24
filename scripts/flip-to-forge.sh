@@ -223,7 +223,7 @@ echo "════════════════════════�
 if [ "$errors" != "0" ]; then
 	echo ""
 	echo "ABORTED: $errors precondition failure(s). No changes made."
-	exit 1
+	exit 2
 fi
 
 # --- Dry-run prints plan only -----------------------------------------------
