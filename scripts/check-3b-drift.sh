@@ -1,21 +1,35 @@
 #!/usr/bin/env bash
 # =============================================================================
-# 3b-forge Drift Check
+# 3b-forge Drift Check (Wave 3+)
 # =============================================================================
 #
-# Compares each entry in plugins/3b/SOURCE-MANIFEST.yaml against the current
-# 3B working tree. For every file, reports whether the 3B source has moved
-# since the manifest's recorded source_sha.
+# Post-flip topology check. Validates that forge's SOURCE-MANIFEST.yaml
+# entries are intact on the 3B side and detects integrity problems.
+#
+# Back-compat: runs cleanly on the pre-flip state (regular files), producing
+# only advisory output from Checks C/D. Symlink-oriented checks (A/B/E)
+# activate only when scripts/.flip-state.json is present.
+#
+# Checks:
+#   A. Symlink integrity    manifest entry in 3B is -L and target exists     (fail=1)
+#   B. Wrong target         readlink does not resolve to computed forge path (fail=1)
+#   C. Untracked candidates new Tier-A-looking files in 3B .claude/          (advisory=2)
+#   D. Reintroduced paths   forge Tier-A files contain ~/dev/personal/3b/    (advisory=2)
+#   E. Plugin-reinstall     entry recorded as symlink is now a regular file  (fail=1)
 #
 # Exit codes:
-#   0 — no drift (every entry's source is at or before its recorded sha)
-#   1 — drift detected (at least one file has upstream changes)
-#   2 — pre-flight failure (missing env var, missing manifest, etc.)
+#   0 — all critical checks pass (advisories may still print)
+#   1 — at least one critical check (A/B/E) failed
+#   2 — pre-flight failure (missing env var, manifest not found, etc.)
+#       OR only advisory findings (C/D) — script still warns, but returns 2
+#       so callers can distinguish clean/advisory/critical.
 #
 # Requirements:
 #   - $FORGE_3B_ROOT must point at a valid git repo
-#   - python3 with PyYAML (for manifest parsing). Install via:
-#       pip install pyyaml   # or: brew install libyaml && pip install pyyaml
+#   - python3 with PyYAML (pip install pyyaml)
+#
+# Emergency fallback: the pre-Wave-3 drift script is recoverable via
+#   git show wave2-backup:scripts/check-3b-drift.sh
 # =============================================================================
 
 set -euo pipefail
@@ -26,7 +40,7 @@ for arg in "$@"; do
 	case "$arg" in
 	--verbose | -v) VERBOSE=1 ;;
 	-h | --help)
-		sed -n '2,18p' "$0"
+		sed -n '2,33p' "$0"
 		exit 0
 		;;
 	*)
@@ -40,6 +54,7 @@ done
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FORGE_HOME="$(cd "${SCRIPT_DIR}/.." && pwd)"
 MANIFEST="${FORGE_HOME}/plugins/3b/SOURCE-MANIFEST.yaml"
+STATE_FILE="${SCRIPT_DIR}/.flip-state.json"
 
 if [ -z "${FORGE_3B_ROOT:-}" ]; then
 	echo "ERROR: FORGE_3B_ROOT must be set." >&2
@@ -57,18 +72,19 @@ if [ ! -f "$MANIFEST" ]; then
 	exit 2
 fi
 
-# --- Pre-flight: 3B working tree clean? -------------------------------------
-# Drift check against HEAD is only meaningful when the working tree matches HEAD.
-DIRTY_COUNT=$(git -C "$FORGE_3B_ROOT" status --porcelain | wc -l | tr -d ' ')
-if [ "$DIRTY_COUNT" != "0" ]; then
-	echo "WARNING: \$FORGE_3B_ROOT has $DIRTY_COUNT uncommitted change(s)." >&2
-	echo "  Drift detection compares against 3B HEAD; uncommitted changes" >&2
-	echo "  are invisible to the check. Consider committing 3B first." >&2
-	echo "" >&2
+# --- Mode detection ---------------------------------------------------------
+# POST_FLIP=1 means .flip-state.json exists → Checks A/B/E active.
+# POST_FLIP=0 means pre-flip state → Checks A/B/E skip (regular files expected).
+if [ -f "$STATE_FILE" ]; then
+	POST_FLIP=1
+	MODE_LABEL="post-flip"
+else
+	POST_FLIP=0
+	MODE_LABEL="pre-flip"
 fi
 
 # --- Parse manifest ---------------------------------------------------------
-# Emit tab-separated: forge_path<TAB>source_path<TAB>source_sha
+# Emit tab-separated: forge_path<TAB>source_path
 ENTRIES=$(
 	python3 - <<PY
 import sys
@@ -76,98 +92,182 @@ try:
     import yaml
 except ImportError:
     sys.stderr.write(
-        "ERROR: PyYAML is required to parse the drift manifest.\n"
+        "ERROR: PyYAML is required to parse the manifest.\n"
         "  Install: pip install pyyaml\n"
-        "  (or: brew install libyaml && pip install pyyaml)\n"
     )
     sys.exit(2)
 with open("$MANIFEST") as f:
     data = yaml.safe_load(f)
 for entry in data.get("entries", []):
-    fp = entry["forge_path"]
-    sp = entry["source_path"]
-    sha = entry["source_sha"]
-    print(f"{fp}\t{sp}\t{sha}")
+    print(f"{entry['forge_path']}\t{entry['source_path']}")
 PY
 )
 
-# --- Per-entry drift check --------------------------------------------------
+# --- Per-entry checks -------------------------------------------------------
 total=0
-drifted=0
-missing=0
-clean=0
-drift_report=""
+ok=0
+fail_a=0
+fail_b=0
+fail_e=0
+critical_report=""
 
-while IFS=$'\t' read -r forge_path source_path source_sha; do
+while IFS=$'\t' read -r forge_path source_path; do
 	[ -z "$forge_path" ] && continue
 	total=$((total + 1))
 
-	# Sanity: does the source_sha exist in 3B, and is it actually a commit?
-	# `cat-file -e` succeeds for any object (blob, tree, tag); without the
-	# `-t == commit` check, `git log ${source_sha}..HEAD` below would abort
-	# the script under `set -e` on non-commit objects.
-	sha_type=$(git -C "$FORGE_3B_ROOT" cat-file -t "$source_sha" 2>/dev/null || echo "")
-	if [ "$sha_type" != "commit" ]; then
-		missing=$((missing + 1))
-		drift_report="${drift_report}UNKNOWN-SHA | ${forge_path}
-  manifest sha: ${source_sha} (not a commit in 3B repo; got type=${sha_type:-absent})
+	forge_abs="${FORGE_HOME}/${forge_path}"
+	source_abs="${FORGE_3B_ROOT}/${source_path}"
+
+	# Check E — plugin-reinstall damage: was recorded as symlink but now regular.
+	# Only active in POST_FLIP mode.
+	if [ "$POST_FLIP" = "1" ]; then
+		if [ -f "$source_abs" ] && [ ! -L "$source_abs" ]; then
+			fail_e=$((fail_e + 1))
+			critical_report="${critical_report}E. REINSTALL-DAMAGE | ${source_path}
+  Expected symlink (per .flip-state.json) but found regular file.
+  Likely cause: plugin reinstall or atomic-rename overwrote the symlink.
+  Fix: bash scripts/flip-to-forge.sh --rollback && --execute, OR
+       manually recreate symlink: ln -s <target> \$FORGE_3B_ROOT/${source_path}
 "
-		continue
+			continue
+		fi
 	fi
 
-	# Does the source file still exist in 3B HEAD?
-	if ! git -C "$FORGE_3B_ROOT" cat-file -e "HEAD:${source_path}" 2>/dev/null; then
-		missing=$((missing + 1))
-		drift_report="${drift_report}SOURCE-GONE | ${forge_path}
-  source ${source_path} no longer exists at 3B HEAD
+	# Check A — symlink integrity (POST_FLIP only).
+	if [ "$POST_FLIP" = "1" ]; then
+		if [ ! -L "$source_abs" ]; then
+			fail_a=$((fail_a + 1))
+			critical_report="${critical_report}A. NOT-A-SYMLINK | ${source_path}
+  Expected symlink, got: $(stat -f '%HT' "$source_abs" 2>/dev/null || echo 'missing')
 "
-		continue
+			continue
+		fi
+		if [ ! -e "$source_abs" ]; then
+			fail_a=$((fail_a + 1))
+			critical_report="${critical_report}A. BROKEN-SYMLINK | ${source_path}
+  Target does not exist: $(readlink "$source_abs")
+"
+			continue
+		fi
+
+		# Check B — wrong target.
+		actual_resolved=$(cd "$(dirname "$source_abs")" && cd "$(dirname "$(readlink "$source_abs")")" && pwd)/$(basename "$(readlink "$source_abs")")
+		expected_resolved="$forge_abs"
+		if [ "$actual_resolved" != "$expected_resolved" ]; then
+			fail_b=$((fail_b + 1))
+			critical_report="${critical_report}B. WRONG-TARGET | ${source_path}
+  expected: $expected_resolved
+  actual:   $actual_resolved
+"
+			continue
+		fi
 	fi
 
-	# Count commits between source_sha and HEAD that touched this source_path.
-	commit_count=$(git -C "$FORGE_3B_ROOT" log --oneline "${source_sha}..HEAD" -- "$source_path" | wc -l | tr -d ' ')
+	ok=$((ok + 1))
+done <<<"$ENTRIES"
 
-	if [ "$commit_count" != "0" ]; then
-		drifted=$((drifted + 1))
-		drift_report="${drift_report}DRIFT ($commit_count commits) | ${forge_path}
-  source: ${source_path}
-  since:  ${source_sha:0:8}
-"
-		if [ "$VERBOSE" = "1" ]; then
-			recent=$(git -C "$FORGE_3B_ROOT" log --oneline "${source_sha}..HEAD" -- "$source_path" | head -5)
-			drift_report="${drift_report}  recent commits:
-${recent}
+# --- Check C: untracked Tier-A candidates in 3B ----------------------------
+# Scan 3B .claude/{skills,rules,agents,global-claude-setup/scripts}/ for real
+# files not in the manifest whose content contains no Tier-C markers.
+advisory_c=0
+advisory_c_report=""
+MANIFEST_PATHS=$(echo "$ENTRIES" | cut -f2)
+
+SCAN_DIRS=(
+	".claude/skills"
+	".claude/rules"
+	".claude/agents"
+	".claude/global-claude-setup/scripts"
+)
+
+TIER_C_PATTERN='~/dev/personal/3b/|3b/knowledge|3b/journals|3b/projects/|buffer\.md|ACTIVE-STATUS|project-claude|prompts/.*PROJECT-CONFIG'
+
+for sd in "${SCAN_DIRS[@]}"; do
+	scan_root="$FORGE_3B_ROOT/$sd"
+	[ -d "$scan_root" ] || continue
+	# Real files only (exclude symlinks).
+	while IFS= read -r f; do
+		rel="${f#$FORGE_3B_ROOT/}"
+		# Skip entries already in manifest.
+		if echo "$MANIFEST_PATHS" | grep -qxF "$rel"; then
+			continue
+		fi
+		# Tier-A heuristic: no Tier-C marker hits.
+		if ! grep -qE "$TIER_C_PATTERN" "$f" 2>/dev/null; then
+			advisory_c=$((advisory_c + 1))
+			advisory_c_report="${advisory_c_report}  ${rel}
 "
 		fi
-	else
-		clean=$((clean + 1))
+	done < <(find "$scan_root" -type f \( -name '*.md' -o -name '*.py' -o -name '*.sh' \) 2>/dev/null)
+done
+
+# --- Check D: reintroduced hardcoded 3B paths in forge Tier-A files --------
+# Grep the 18 forge files for ~/dev/personal/3b/ — these should be scrubbed.
+advisory_d=0
+advisory_d_report=""
+
+while IFS=$'\t' read -r forge_path source_path; do
+	[ -z "$forge_path" ] && continue
+	forge_abs="${FORGE_HOME}/${forge_path}"
+	[ -f "$forge_abs" ] || continue
+	if grep -q '~/dev/personal/3b/' "$forge_abs" 2>/dev/null; then
+		advisory_d=$((advisory_d + 1))
+		hits=$(grep -c '~/dev/personal/3b/' "$forge_abs")
+		advisory_d_report="${advisory_d_report}  ${forge_path} (${hits} hit(s))
+"
 	fi
 done <<<"$ENTRIES"
 
 # --- Report -----------------------------------------------------------------
+critical_fails=$((fail_a + fail_b + fail_e))
+advisories=$((advisory_c + advisory_d))
+
 echo "═══════════════════════════════════════════════"
-echo " 3b-forge Source Drift Check"
+echo " 3b-forge Drift Check — ${MODE_LABEL}"
 echo "═══════════════════════════════════════════════"
-echo " Total entries:   $total"
-echo " In sync:         $clean"
-echo " Drifted:         $drifted"
-if [ "$missing" != "0" ]; then
-	echo " Missing sources: $missing"
+echo " Total entries:         $total"
+echo " Passed:                $ok"
+if [ "$POST_FLIP" = "1" ]; then
+	echo " A (symlink integrity): $fail_a fail(s)"
+	echo " B (wrong target):      $fail_b fail(s)"
+	echo " E (reinstall damage):  $fail_e fail(s)"
 fi
+echo " C (untracked cands):   $advisory_c advisory"
+echo " D (reintroduced refs): $advisory_d advisory"
 echo "═══════════════════════════════════════════════"
 
-if [ "$drifted" != "0" ] || [ "$missing" != "0" ]; then
+if [ "$critical_fails" != "0" ]; then
 	echo ""
-	printf '%s' "$drift_report"
+	echo "── Critical findings ──"
+	printf '%s' "$critical_report"
+fi
+
+if [ "$advisory_c" != "0" ]; then
 	echo ""
-	echo "Next steps:"
-	echo "  1. Review the changes in 3B for each drifted file."
-	echo "  2. Re-sync the forge file, re-applying scrubs per PUBLIC-PRIVATE-SPLIT.md."
-	echo "  3. Update SOURCE-MANIFEST.yaml: set source_sha to the new 3B HEAD."
-	echo "  4. Re-run this script to confirm in sync."
+	echo "── C. Untracked Tier-A candidates ──"
+	echo "These files look Tier-A but are not in SOURCE-MANIFEST.yaml."
+	echo "Consider adding them to the manifest and migrating to forge:"
+	printf '%s' "$advisory_c_report"
+fi
+
+if [ "$advisory_d" != "0" ]; then
+	echo ""
+	echo "── D. Reintroduced hardcoded 3B paths ──"
+	echo "Forge Tier-A files that contain ~/dev/personal/3b/ — should be"
+	echo "scrubbed (use \$FORGE_3B_ROOT or placeholders):"
+	printf '%s' "$advisory_d_report"
+fi
+
+if [ "$critical_fails" != "0" ]; then
 	exit 1
 fi
 
+if [ "$advisories" != "0" ]; then
+	echo ""
+	echo "Advisories present; no critical failures. Review and groom as needed."
+	exit 2
+fi
+
 echo ""
-echo "All forge files are in sync with their 3B sources."
+echo "All checks pass."
 exit 0
