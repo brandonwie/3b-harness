@@ -139,25 +139,32 @@ check "$CLAUDE/skills" "$THREE_B/.claude/skills" "Personal"
 check "$CLAUDE/RTK.md" "$GLOBAL/RTK.md" "Personal"
 
 # ─── Category B: Work Profile (~/.claude-work → chain) ─────────
-echo "▸ Work (~/.claude-work → chain)"
+# Gated on FORGE_INSTALL_WORK_PROFILE — matches installer/setup.sh. When
+# unset or 0, the work profile is opt-out, so reporting MISSING for every
+# link is noise (fires daily via the symlink-daily-check hook).
+if [ "${FORGE_INSTALL_WORK_PROFILE:-0}" = "1" ]; then
+	echo "▸ Work (~/.claude-work → chain)"
 
-check "$WORK/CLAUDE.md" "$CLAUDE/CLAUDE.md" "Work"
-check "$WORK/CUSTOMIZATIONS.md" "$CLAUDE/CUSTOMIZATIONS.md" "Work"
-check "$WORK/commands" "$CLAUDE/commands" "Work"
-check "$WORK/hooks" "$CLAUDE/hooks" "Work"
-check "$WORK/scripts" "$CLAUDE/scripts" "Work"
-check "$WORK/claude-hud-patches" "$CLAUDE/claude-hud-patches" "Work"
-check "$WORK/statusline-wrapper.sh" "$CLAUDE/statusline-wrapper.sh" "Work"
-check "$WORK/task-tracker.json" "$CLAUDE/task-tracker.json" "Work"
-check "$WORK/settings.json" "$CLAUDE/settings.json" "Work"
-check "$WORK/RTK.md" "$CLAUDE/RTK.md" "Work"
-check "$WORK/friction-log.json" "$CLAUDE/friction-log.json" "Work"
-check "$WORK/friction-log-archive.json" "$CLAUDE/friction-log-archive.json" "Work"
-check "$WORK/plugins/claude-hud/config.json" "$CLAUDE/plugins/claude-hud/config.json" "Work"
-check "$WORK/skills" "$CLAUDE/skills" "Work"
-check "$WORK/agents" "$CLAUDE/agents" "Work" "optional"
-check "$WORK/ide" "$CLAUDE/ide" "Work" "optional"
-check "$WORK/settings.local.json" "$GLOBAL/settings.local.work.json" "Work"
+	check "$WORK/CLAUDE.md" "$CLAUDE/CLAUDE.md" "Work"
+	check "$WORK/CUSTOMIZATIONS.md" "$CLAUDE/CUSTOMIZATIONS.md" "Work"
+	check "$WORK/commands" "$CLAUDE/commands" "Work"
+	check "$WORK/hooks" "$CLAUDE/hooks" "Work"
+	check "$WORK/scripts" "$CLAUDE/scripts" "Work"
+	check "$WORK/claude-hud-patches" "$CLAUDE/claude-hud-patches" "Work"
+	check "$WORK/statusline-wrapper.sh" "$CLAUDE/statusline-wrapper.sh" "Work"
+	check "$WORK/task-tracker.json" "$CLAUDE/task-tracker.json" "Work"
+	check "$WORK/settings.json" "$CLAUDE/settings.json" "Work"
+	check "$WORK/RTK.md" "$CLAUDE/RTK.md" "Work"
+	check "$WORK/friction-log.json" "$CLAUDE/friction-log.json" "Work"
+	check "$WORK/friction-log-archive.json" "$CLAUDE/friction-log-archive.json" "Work"
+	check "$WORK/plugins/claude-hud/config.json" "$CLAUDE/plugins/claude-hud/config.json" "Work"
+	check "$WORK/skills" "$CLAUDE/skills" "Work"
+	check "$WORK/agents" "$CLAUDE/agents" "Work" "optional"
+	check "$WORK/ide" "$CLAUDE/ide" "Work" "optional"
+	check "$WORK/settings.local.json" "$GLOBAL/settings.local.work.json" "Work"
+else
+	echo "▸ Work profile (skipped — set FORGE_INSTALL_WORK_PROFILE=1 to enable)"
+fi
 
 # ─── Category C: Project Repos ─────────────────────────────────
 # Add your own `check_project` calls below. Each entry follows:
