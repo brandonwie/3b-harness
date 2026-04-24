@@ -128,8 +128,13 @@ for e in data['entries']:
 		exit 1
 	fi
 
+	# Archive state file so check-3b-drift.sh reverts to pre-flip mode.
+	# Without this, the drift checker reads the stale state file and reports
+	# all 18 entries as A. NOT-A-SYMLINK after a successful rollback.
+	ARCHIVE="${STATE_FILE}.rolled-back-$(date -u +%Y%m%dT%H%M%SZ)"
+	mv "$STATE_FILE" "$ARCHIVE"
+	echo "Archived state file → $ARCHIVE"
 	echo "Rollback complete. Review 'git -C \$FORGE_3B_ROOT status' and commit."
-	echo "Move $STATE_FILE aside if you intend to re-flip."
 	exit 0
 fi
 
