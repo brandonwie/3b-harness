@@ -84,21 +84,20 @@ creator, not engineer.
 ## Example Post
 
 ```text
-Reasoning models like DeepSeek-R1 don't improve by "thinking longer" — they
-internally simulate multi-agent debates among distinct cognitive perspectives.
-Evans et al. call this a "society of thought."
+<<< Illustrative template — replace bracketed sections with the real paper.
+Do NOT fabricate authors, venues, or arXiv IDs. Use the real metadata from
+Step 1 of research-paper/SKILL.md. >>>
 
-The practical implication: scaling AI may be less about bigger models and more
-about composing multiple agents into structured ensembles. The paper draws
-parallels to how human intelligence scaled through social organization, not
-individual brain size.
+[One-sentence reframing of the paper's core claim in engineer-facing terms.]
 
-Relevant to anyone designing multi-agent architectures or agent orchestration
-systems.
+The practical implication: [what this changes about how you'd design X].
+
+Relevant to anyone [concrete audience — e.g., "designing multi-agent
+architectures", "evaluating RAG pipelines"].
 
 - analyzed and drafted with Claude
 
-Paper: https://arxiv.org/abs/2603.20639
+Paper: https://arxiv.org/abs/XXXX.XXXXX
 
 #AI #AgenticAI
 ```
