@@ -18,11 +18,12 @@
 #   E. Plugin-reinstall     entry recorded as symlink is now a regular file  (fail=1)
 #
 # Exit codes:
-#   0 — all critical checks pass (advisories may still print)
+#   0 — all checks pass, no advisories
 #   1 — at least one critical check (A/B/E) failed
-#   2 — pre-flight failure (missing env var, manifest not found, etc.)
-#       OR only advisory findings (C/D) — script still warns, but returns 2
-#       so callers can distinguish clean/advisory/critical.
+#   2 — pre-flight failure (missing env var, manifest not found, bad flag)
+#   3 — advisory findings only (C/D); critical checks all passed. Callers
+#       treating exit ≥ 2 as fatal stay correct; treating exit 2 vs 3
+#       separately lets CI distinguish "couldn't run" from "ran, noticed".
 #
 # Requirements:
 #   - $FORGE_3B_ROOT must point at a valid git repo
@@ -299,7 +300,7 @@ fi
 if [ "$advisories" != "0" ]; then
 	echo ""
 	echo "Advisories present; no critical failures. Review and groom as needed."
-	exit 2
+	exit 3
 fi
 
 echo ""
