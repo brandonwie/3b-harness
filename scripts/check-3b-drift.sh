@@ -222,7 +222,7 @@ for sd in "${SCAN_DIRS[@]}"; do
 	[ -d "$scan_root" ] || continue
 	# Real files only (exclude symlinks).
 	while IFS= read -r f; do
-		rel="${f#$FORGE_3B_ROOT/}"
+		rel="${f#"$FORGE_3B_ROOT"/}"
 		# Skip entries already in manifest.
 		if echo "$MANIFEST_PATHS" | grep -qxF "$rel"; then
 			continue

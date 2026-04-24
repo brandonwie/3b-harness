@@ -267,7 +267,7 @@ if [ "$MODE" = "dry-run" ]; then
 	echo "Planned actions:"
 	while IFS=$'\t' read -r source_abs forge_abs rel_target; do
 		[ -z "$source_abs" ] && continue
-		echo "  ${source_abs#$FORGE_3B_ROOT/}"
+		echo "  ${source_abs#"$FORGE_3B_ROOT"/}"
 		echo "    → $rel_target"
 	done <<<"$PLAN"
 	echo ""
