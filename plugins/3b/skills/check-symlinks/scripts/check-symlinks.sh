@@ -1,11 +1,26 @@
 #!/usr/bin/env bash
 # 3B Symlink Audit — checks all symlinks from 3B to profiles and project repos
-# Compatible with bash 3.2+ (no associative arrays)
+# Compatible with bash 3.2+ (no associative arrays). Path resolution uses
+# `realpath` when present (coreutils/macOS brew) and falls back to python3
+# so this works on stock macOS without a Homebrew-installed coreutils.
 # Exit codes: 0 = all healthy, 1 = issues found
 
 set -eo pipefail
 
 THREE_B="${FORGE_3B_ROOT:?FORGE_3B_ROOT must be set — export it before running}"
+
+# ─── realpath fallback ─────────────────────────────────────────
+# Stock macOS bash 3.2 ships without `realpath`; brew-installed
+# coreutils provides it but isn't guaranteed. python3 is already
+# a project-wide dependency (see installer/README.md), so it is
+# the safe fallback.
+_realpath() {
+	if command -v realpath >/dev/null 2>&1; then
+		realpath "$1"
+	else
+		python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$1"
+	fi
+}
 GLOBAL="$THREE_B/.claude/global-claude-setup"
 PC="$THREE_B/.claude/project-claude"
 CLAUDE="$HOME/.claude"
@@ -46,8 +61,8 @@ check() {
 
 	# It's a symlink — resolve both sides to compare
 	local actual expected_resolved
-	actual=$(realpath "$path" 2>/dev/null || echo "UNRESOLVABLE")
-	expected_resolved=$(realpath "$expected" 2>/dev/null || echo "UNRESOLVABLE")
+	actual=$(_realpath "$path" 2>/dev/null || echo "UNRESOLVABLE")
+	expected_resolved=$(_realpath "$expected" 2>/dev/null || echo "UNRESOLVABLE")
 
 	# BROKEN: symlink can't resolve or target missing
 	if [ "$actual" = "UNRESOLVABLE" ] || [ ! -e "$path" ]; then
