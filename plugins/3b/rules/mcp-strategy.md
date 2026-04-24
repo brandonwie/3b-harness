@@ -1,4 +1,8 @@
 ---
+tags: [mcp, configuration, integrations, plugins]
+created: 2026-04-24
+updated: 2026-04-24
+status: completed
 paths:
   - "**/.mcp.json"
   - ".claude/project-claude/*.mcp.json"
