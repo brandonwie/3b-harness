@@ -47,7 +47,7 @@ if [ -z "${FORGE_3B_ROOT:-}" ]; then
 	exit 2
 fi
 
-if [ ! -d "${FORGE_3B_ROOT}/.git" ]; then
+if ! git -C "$FORGE_3B_ROOT" rev-parse --git-dir >/dev/null 2>&1; then
 	echo "ERROR: \$FORGE_3B_ROOT ($FORGE_3B_ROOT) is not a git repo." >&2
 	exit 2
 fi
