@@ -74,6 +74,24 @@ per plugin.
   FORGE_INSTALL_WORK_PROFILE, FORGE_DRY_RUN); drift-detection section
   added pointing to `scripts/check-3b-drift.sh`.
 
+### `plugins/3b/` v0.0.3 → v0.0.4 (2026-04-24)
+
+#### Changed
+- **Ownership model: Wave 3 SSoT flip.** Forge is now the Single Source
+  of Truth for the 18 manifest entries in `SOURCE-MANIFEST.yaml`. The 3B
+  repo will consume these via relative symlinks after the follow-on
+  3B-side PR runs `scripts/flip-to-forge.sh --execute`. This plugin
+  release ships only the policy + documentation updates; no skill or
+  rule behaviour changes.
+- `PUBLIC-PRIVATE-SPLIT.md` — tier classification moves from a
+  content-grep heuristic to explicit `SOURCE-MANIFEST.yaml` membership.
+  The grep rubric is retained as a candidate-scoring tool for new
+  migrations. Drift section documents the five post-flip integrity
+  checks.
+- `README.md` — adds a mermaid SSoT topology diagram under a new
+  "SSoT topology (Wave 3)" section and bumps the status header to
+  v0.0.4.
+
 ### `plugins/3b/` v0.0.2 → v0.0.3 (2026-04-24)
 
 #### Added
