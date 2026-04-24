@@ -8,6 +8,20 @@ future AI agent host that can read markdown-based skills.
 > playbooks, and (optional) Python engine live once, and are shared
 > across every host via per-host manifests. No sibling duplication.
 
+## Supported platforms
+
+**macOS is the only tested platform** for the installer and
+shell-based tooling (`installer/setup.sh`, `scripts/check-3b-drift.sh`,
+`plugins/3b/skills/check-symlinks`). Linux is likely to work — the
+scripts are bash + POSIX tools — but it is not part of the test
+matrix yet. Windows is **not supported**: the installer relies on
+bash, `ln -s` symlinks, and `$HOME/.claude` layout assumptions. WSL
+may work by proxy but has not been verified.
+
+Platform-specific install payloads (e.g., `.ps1` scripts, junction
+helpers) are not shipped. See [`installer/README.md`](./installer/README.md)
+for install prerequisites.
+
 ## What ships today
 
 | Path | Purpose | Status |

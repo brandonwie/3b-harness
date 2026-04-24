@@ -5,6 +5,18 @@ that has a 3B-structured knowledge repo, configured via the `FORGE_3B_ROOT`
 environment variable. The `templates/CLAUDE.md` split separates universal
 guidance from the opt-in 3B methodology extension.
 
+## Supported platforms
+
+| Platform | Status | Notes |
+| -------- | ------ | ----- |
+| macOS | **Supported** | Primary test platform. Stock bash 3.2 is handled; `realpath` falls back to `python3` when missing. |
+| Linux | Untested | Expected to work — scripts are bash + POSIX tools, no macOS-specific binaries — but not in the current test matrix. Report issues. |
+| Windows | **Not supported** | Installer requires bash, `ln -s` symlinks, and `$HOME/.claude` layout. No `.ps1` / junction equivalents ship. WSL may work by proxy (untested). |
+
+Prerequisites on any supported platform: `bash` (3.2+), `python3` (+ `PyYAML`
+for `scripts/check-3b-drift.sh`), `git`, `coreutils` (optional — improves
+`realpath` behaviour).
+
 ## Quick start
 
 ```bash
