@@ -36,9 +36,10 @@ different platform:
 The interview runs as an in-conversation flow driven by the
 socratic-interviewer role and rotating perspectives (see step B.6). No
 MCP tools, no Python runtime, no persistence — the host conversation is
-the engine. For a Python-engine variant with numerical ambiguity
-scoring and file-locked state, see
-[`plugins/interview-codex/`](../../../interview-codex/).
+the engine. For a Python-engine variant with numeric ambiguity scoring
+(0–1 scale, 40/30/30 weighting) and file-locked persisted
+`InterviewState`, see [`../../engine/`](../../engine/) — same `agents/`
+SSoT, opt-in for programmatic integrators.
 
 #### B.1 — Adopt the interviewer role
 
